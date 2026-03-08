@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState } from 'react';
+import { TradingSessionZone } from '@/components/features/markets/TradingSessionZone';
 
 export interface CalendarEvent {
   title: string;
@@ -224,7 +225,7 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
-          <aside className="lg:w-56 shrink-0">
+          <aside className="lg:w-56 shrink-0 order-1">
             <MiniCalendar
               selectedDate={selectedDate}
               onSelectDate={setSelectedDate}
@@ -232,7 +233,7 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
             />
           </aside>
 
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 order-2">
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <input
                 type="search"
@@ -330,6 +331,10 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
               </div>
             )}
           </div>
+
+          <aside className="lg:w-72 shrink-0 order-3 lg:sticky lg:top-6 lg:self-start">
+            <TradingSessionZone />
+          </aside>
         </div>
       </section>
     </>

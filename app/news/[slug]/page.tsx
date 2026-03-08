@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getArticleBySlug, getRelatedArticles, getNewsArticles } from '@/lib/api/news';
 import { NewsCard } from '@/components/features/news/NewsCard';
-import { Card, CardContent } from '@/components/ui';
+
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;

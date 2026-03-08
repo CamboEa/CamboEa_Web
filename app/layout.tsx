@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Noto_Sans_Khmer } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
-import { TradingViewTicker } from "@/components/features/markets/TradingViewWidgets";
+import { ClientShell } from "@/components/layout/ClientShell";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,12 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${notoSansKhmer.variable} font-sans antialiased`}
       >
-        <Header />
-        <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <TradingViewTicker />
-        </section>
-        {children}
-        <Footer />
+        <ClientShell>{children}</ClientShell>
       </body>
     </html>
   );

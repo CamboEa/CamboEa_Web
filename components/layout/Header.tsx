@@ -11,6 +11,7 @@ const NAV_LINKS = [
   { href: '/markets', label: 'ទីផ្សារ' },
   { href: '/calendar', label: 'ប្រតិទិនសេដ្ឋកិច្ច' },
   { href: '/analysis', label: 'ការវិភាគ' },
+  { href: '/ea-trading-bot', label: 'EA Trading Bot' },
 ];
 
 export const Header = () => {

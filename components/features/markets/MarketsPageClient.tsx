@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { TradingViewMarketOverview, TradingViewWidget } from './TradingViewWidgets';
+import { TradingSessionZone } from './TradingSessionZone';
 
 type ViewMode = 'overview' | 'graphic';
 
@@ -43,12 +44,14 @@ export function MarketsPageClient() {
   }, [query]);
 
   return (
-    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-6">
-      <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-        ទិដ្ឋភាពទីផ្សារ
-      </h2>
+    <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-6 lg:gap-8">
+      {/* Main content */}
+      <div className="flex-1 min-w-0 flex flex-col gap-6">
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+          ទិដ្ឋភាពទីផ្សារ
+        </h2>
 
-      {/* Tab buttons */}
+        {/* Tab buttons */}
       <div className="flex flex-wrap gap-2">
         {TABS.map((tab) => (
           <button
@@ -146,6 +149,12 @@ export function MarketsPageClient() {
           )}
         </div>
       )}
+      </div>
+
+      {/* Right sidebar: Session zone */}
+      <div className="lg:order-2 lg:sticky lg:top-6 lg:self-start">
+        <TradingSessionZone />
+      </div>
     </div>
   );
 }

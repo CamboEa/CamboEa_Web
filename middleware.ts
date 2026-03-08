@@ -1,29 +1,29 @@
-// CamboEA - Middleware (for auth, redirects, etc.)
+// CamboEA - Middleware (admin auth, redirects, etc.)
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Example middleware to log requests and handle redirects
+const ADMIN_SESSION_COOKIE = 'admin_session';
+
 export function middleware(request: NextRequest) {
-  // Log the request method and URL
-  console.log(`Request Method: ${request.method}, URL: ${request.url}`);
+  const { pathname } = request.nextUrl;
 
-  // Example: Redirect from /old-path to /new-path
-  if (request.nextUrl.pathname === '/old-path') {
-    const url = request.nextUrl.clone();
-    url.pathname = '/new-path';
-    return NextResponse.redirect(url);
+  // Admin: allow login page; protect other admin routes with session cookie
+  if (pathname.startsWith('/admin')) {
+    if (pathname === '/admin/login') {
+      return NextResponse.next();
+    }
+    const session = request.cookies.get(ADMIN_SESSION_COOKIE)?.value;
+    if (!session) {
+      const loginUrl = new URL('/admin/login', request.url);
+      loginUrl.searchParams.set('from', pathname);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
   }
 
-  // Example: Block access to a specific path
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    return new NextResponse('Access Denied', { status: 403 });
-  }
-
-  // Continue with the request if no conditions are met
   return NextResponse.next();
 }
 
-// Specify the paths where the middleware should run
 export const config = {
-  matcher: ['/old-path', '/admin/:path*'],
+  matcher: ['/admin', '/admin/:path*'],
 };
