@@ -1,25 +1,24 @@
-// Forex & Crypto News - News API Functions
+// CamboEA - News API Functions
 
 import { NewsArticle, NewsCategory, NewsFilters } from '@/types';
 
-// Sample data - Focus: Gold (XAU/USD) and Bitcoin (BTC/USD) only
+// World news that impacts currencies, gold, and crypto
 const SAMPLE_NEWS: NewsArticle[] = [
-  // Bitcoin Articles
   {
     id: 'btc-1',
-    slug: 'bitcoin-price-prediction-january-2026',
-    title: 'Bitcoin Price Prediction: BTC Could Surge to $60,000 by End of January',
-    excerpt: 'Technical analysis suggests Bitcoin is poised for a significant breakout as institutional adoption continues to grow.',
+    slug: 'fed-interest-rate-decision-january-2026',
+    title: 'ធនាគារកណ្តាលសហរដ្ឋអាមេរិករក្សាអត្រាការប្រាក់ — ឥទ្ធិពលដល់ដុល្លារ មាស និងគ្រីបធ័',
+    excerpt: 'ការសម្រេចចិត្តរបស់ Fed កាលពីថ្ងៃនេះធ្វើឱ្យដុល្លាររឹងមាំ មាសទទួលឥទ្ធិពល និង Bitcoin រញ៉េរញ៉ៃ។',
     content: 'Full article content here...',
     category: 'crypto',
-    tags: ['bitcoin', 'btc', 'price-prediction', 'technical-analysis'],
+    tags: ['fed', 'interest-rates', 'usd', 'bitcoin', 'gold'],
     author: {
       name: 'Sarah Chen',
-      role: 'Senior Crypto Analyst',
     },
     publishedAt: '2026-01-21T08:00:00Z',
-    readTime: '5 min read',
+    readTime: '៥ នាទីអាន',
     featured: true,
+    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80',
     prediction: {
       asset: 'BTC/USD',
       currentPrice: 52345,
@@ -31,18 +30,18 @@ const SAMPLE_NEWS: NewsArticle[] = [
   },
   {
     id: 'btc-2',
-    slug: 'bitcoin-institutional-adoption-2026',
-    title: 'Bitcoin Institutional Adoption Reaches New Heights in 2026',
-    excerpt: 'Major corporations and investment funds continue to add Bitcoin to their portfolios, driving demand.',
+    slug: 'european-central-bank-rate-cut-signal',
+    title: 'ធនាគារកណ្តាលអឺរ៉ុបផ្តល់សញ្ញាកាត់បន្ថយអត្រា — EUR/USD និងទីផ្សារគ្រីបធ័',
+    excerpt: 'ECB បង្ហាញថាអាចកាត់បន្ថយអត្រាការប្រាក់នាពេលខាងមុខ ធ្វើឱ្យអឺរ៉ុបខ្សោយ និងផ្តល់ឥទ្ធិពលដល់គូប្រាក់។',
     content: 'Full article content here...',
     category: 'crypto',
-    tags: ['bitcoin', 'btc', 'institutional', 'adoption'],
+    tags: ['ecb', 'euro', 'eur-usd', 'interest-rates'],
     author: {
       name: 'Michael Torres',
-      role: 'Blockchain Researcher',
     },
     publishedAt: '2026-01-21T06:30:00Z',
-    readTime: '6 min read',
+    readTime: '៦ នាទីអាន',
+    image: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80',
     prediction: {
       asset: 'BTC/USD',
       currentPrice: 52345,
@@ -54,18 +53,18 @@ const SAMPLE_NEWS: NewsArticle[] = [
   },
   {
     id: 'btc-3',
-    slug: 'bitcoin-halving-impact-analysis',
-    title: 'Bitcoin Halving Impact: What to Expect for BTC Price Tomorrow',
-    excerpt: 'The upcoming Bitcoin halving event could trigger significant price movements. Here\'s our analysis.',
+    slug: 'geopolitical-tensions-middle-east-oil-gold',
+    title: 'ភាពតានតឹងភូមិសាស្រ្តកើនឡើងនៅដើម្បីកើត — ឥទ្ធិពលដល់ប្រេង មាស និងទីផ្សារហានិភ័យ',
+    excerpt: 'ជម្លោះនៅដើម្បីកើតធ្វើឱ្យតម្លៃប្រេងកើន មាសឡើងជាទ្រព្យការពារ និងគ្រីបធ័រញ៉េរញ៉ៃ។',
     content: 'Full article content here...',
     category: 'crypto',
-    tags: ['bitcoin', 'btc', 'halving', 'price-prediction'],
+    tags: ['geopolitical', 'oil', 'gold', 'safe-haven', 'bitcoin'],
     author: {
       name: 'Alex Kim',
-      role: 'Crypto Trader',
     },
     publishedAt: '2026-01-20T14:00:00Z',
-    readTime: '7 min read',
+    readTime: '៧ នាទីអាន',
+    image: 'https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800&q=80',
     prediction: {
       asset: 'BTC/USD',
       currentPrice: 52345,
@@ -77,18 +76,18 @@ const SAMPLE_NEWS: NewsArticle[] = [
   },
   {
     id: 'btc-4',
-    slug: 'bitcoin-regulation-update',
-    title: 'Bitcoin Regulation Update: How New Policies Could Affect BTC Price',
-    excerpt: 'Latest regulatory developments and their potential impact on Bitcoin\'s price trajectory.',
+    slug: 'global-crypto-regulation-mica-europe',
+    title: 'ការគ្រប់គ្រងគ្រីបធ័សកល (MiCA) នៅអឺរ៉ុប — ឥទ្ធិពលដល់ BTC និងគូប្រាក់',
+    excerpt: 'ច្បាប់ថ្មីរបស់អឺរ៉ុបចំពោះគ្រីបធ័ផ្តល់ឥទ្ធិពលដល់ទីផ្សារ និងអត្រាប្តូរប្រាក់ដុល្លារ។',
     content: 'Full article content here...',
     category: 'crypto',
-    tags: ['bitcoin', 'btc', 'regulation', 'policy'],
+    tags: ['regulation', 'mica', 'europe', 'bitcoin', 'crypto'],
     author: {
       name: 'Jennifer Walsh',
-      role: 'Legal Analyst',
     },
     publishedAt: '2026-01-20T10:00:00Z',
-    readTime: '5 min read',
+    readTime: '៥ នាទីអាន',
+    image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80',
     prediction: {
       asset: 'BTC/USD',
       currentPrice: 52345,
@@ -99,22 +98,21 @@ const SAMPLE_NEWS: NewsArticle[] = [
     },
   },
 
-  // Gold Articles
   {
     id: 'gold-1',
-    slug: 'gold-price-prediction-january-2026',
-    title: 'Gold Price Prediction: XAU/USD Could Break $2,100 This Week',
-    excerpt: 'Gold prices are showing strong momentum as inflation concerns and geopolitical tensions drive safe-haven demand.',
+    slug: 'us-inflation-data-cpi-january-2026',
+    title: 'ទិន្នន័យអតិផរណាសហរដ្ឋអាមេរិកលើសក expectations — ឥទ្ធិពលដល់ដុល្លារ មាស និងធនធាន',
+    excerpt: 'CPI ខែមករាខ្ពស់ជាងការរំពឹងទុក ធ្វើឱ្យដុល្លាររឹងមាំ មាសឡើងជាការការពារ និងគ្រីបធ័ទទួលឥទ្ធិពល។',
     content: 'Full article content here...',
     category: 'forex',
-    tags: ['gold', 'xauusd', 'price-prediction', 'safe-haven'],
+    tags: ['inflation', 'cpi', 'usd', 'gold', 'fed'],
     author: {
       name: 'David Miller',
-      role: 'Commodity Strategist',
     },
     publishedAt: '2026-01-21T07:00:00Z',
-    readTime: '5 min read',
+    readTime: '៥ នាទីអាន',
     featured: true,
+    image: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80',
     prediction: {
       asset: 'XAU/USD',
       currentPrice: 2035.50,
@@ -126,18 +124,18 @@ const SAMPLE_NEWS: NewsArticle[] = [
   },
   {
     id: 'gold-2',
-    slug: 'gold-inflation-hedge-analysis',
-    title: 'Gold as Inflation Hedge: Why XAU/USD Rises When Inflation Spikes',
-    excerpt: 'Understanding the relationship between gold prices and inflation, and what it means for tomorrow\'s trading.',
+    slug: 'china-stimulus-economy-commodities-yuan',
+    title: 'ចិនចេញវិធានការលូតលាស់សេដ្ឋកិច្ច — ឥទ្ធិពលដល់យ័ន វីជី មាស និងទីផ្សារហានិភ័យ',
+    excerpt: 'ការលូតលាស់វិធានការរបស់ចិនផ្តល់ឥទ្ធិពលដល់យ័ន វីជី មាស និងអារម្មណ៍ទីផ្សារសកល។',
     content: 'Full article content here...',
     category: 'forex',
-    tags: ['gold', 'xauusd', 'inflation', 'hedge'],
+    tags: ['china', 'stimulus', 'yuan', 'commodities', 'gold'],
     author: {
       name: 'Emma Williams',
-      role: 'Economic Analyst',
     },
     publishedAt: '2026-01-21T05:00:00Z',
-    readTime: '6 min read',
+    readTime: '៦ នាទីអាន',
+    image: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
     prediction: {
       asset: 'XAU/USD',
       currentPrice: 2035.50,
@@ -149,18 +147,18 @@ const SAMPLE_NEWS: NewsArticle[] = [
   },
   {
     id: 'gold-3',
-    slug: 'gold-federal-reserve-impact',
-    title: 'Gold Alert: Federal Reserve Policy Decision Could Move XAU/USD',
-    excerpt: 'The Fed\'s upcoming interest rate decision may significantly impact gold prices.',
+    slug: 'us-nfp-jobs-report-january-2026',
+    title: 'របាយការណ៍ការងារសហរដ្ឋអាមេរិក (NFP) ខ្លាំង — ដុល្លារ អត្រាការប្រាក់ និងមាស',
+    excerpt: 'NFP ខ្លាំងជាងការរំពឹងទុក ធ្វើឱ្យដុល្លារឡើង អត្រាការប្រាក់ Fed រក្សា និងមាសទទួលឥទ្ធិពលអវិជ្ជមាន។',
     content: 'Full article content here...',
     category: 'forex',
-    tags: ['gold', 'xauusd', 'federal-reserve', 'interest-rates'],
+    tags: ['nfp', 'jobs', 'usd', 'fed', 'gold'],
     author: {
       name: 'James Cooper',
-      role: 'Precious Metals Analyst',
     },
     publishedAt: '2026-01-20T12:00:00Z',
-    readTime: '5 min read',
+    readTime: '៥ នាទីអាន',
+    image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80',
     prediction: {
       asset: 'XAU/USD',
       currentPrice: 2035.50,
@@ -172,18 +170,18 @@ const SAMPLE_NEWS: NewsArticle[] = [
   },
   {
     id: 'gold-4',
-    slug: 'gold-geopolitical-tensions',
-    title: 'Gold Rises on Geopolitical Tensions: XAU/USD Outlook',
-    excerpt: 'Escalating geopolitical tensions are driving investors toward gold as a safe-haven asset.',
+    slug: 'dollar-strength-emerging-markets-currencies',
+    title: 'ភាពរឹងមាំរបស់ដុល្លារ និងគូប្រាក់ទីផ្សារកើនឡើង — USD/THB, USD/KHR, មាស',
+    excerpt: 'ដុល្លាររឹងមាំធ្វើឱ្យគូប្រាក់នៅអាស៊ីអាគ្នេយ៍ និងទ្រព្យស refuge ដូចជាមាស ទទួលឥទ្ធិពល។',
     content: 'Full article content here...',
     category: 'forex',
-    tags: ['gold', 'xauusd', 'geopolitical', 'safe-haven'],
+    tags: ['usd', 'dxy', 'emerging-markets', 'gold', 'currencies'],
     author: {
       name: 'Robert Brown',
-      role: 'Market Strategist',
     },
     publishedAt: '2026-01-20T09:00:00Z',
-    readTime: '4 min read',
+    readTime: '៤ នាទីអាន',
+    image: 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80',
     prediction: {
       asset: 'XAU/USD',
       currentPrice: 2035.50,
@@ -207,7 +205,8 @@ export async function getNewsArticles(filters?: NewsFilters): Promise<NewsArticl
   }
 
   if (filters?.tag) {
-    articles = articles.filter(a => a.tags.includes(filters.tag));
+    const tag = filters.tag;
+    articles = articles.filter(a => a.tags.includes(tag));
   }
 
   if (filters?.search) {
@@ -231,6 +230,12 @@ export async function getNewsArticles(filters?: NewsFilters): Promise<NewsArticl
 // Get news by category
 export async function getNewsByCategory(category: NewsCategory): Promise<NewsArticle[]> {
   return getNewsArticles({ category });
+}
+
+// Get world news that impacts markets (currencies, gold, crypto)
+export async function getNewsByMarkets(): Promise<NewsArticle[]> {
+  const articles = await getNewsArticles();
+  return articles.filter(a => a.category === 'forex' || a.category === 'crypto');
 }
 
 // Get a single article by slug

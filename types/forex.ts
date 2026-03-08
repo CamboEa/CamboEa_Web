@@ -1,1 +1,1 @@
-// Forex & Crypto News - Forex Type Definitions
+// CamboEA - Forex Type Definitions

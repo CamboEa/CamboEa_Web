@@ -1,1 +1,1 @@
-// Forex & Crypto News - News Context Provider
+// CamboEA - News Context Provider

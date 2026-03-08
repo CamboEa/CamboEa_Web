@@ -1,1 +1,1 @@
-// Forex & Crypto News - Validation Utility Functions
+// CamboEA - Validation Utility Functions

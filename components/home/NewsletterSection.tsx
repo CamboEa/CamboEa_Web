@@ -24,7 +24,7 @@ export const NewsletterSection = () => {
   };
 
   return (
-    <section className="py-16 bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 text-white relative overflow-hidden">
+    <section className="py-16 bg-linear-to-br from-sky-500 via-blue-600 to-blue-800 text-white relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{
@@ -42,10 +42,10 @@ export const NewsletterSection = () => {
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Stay Informed, Stay Ahead
+            នៅដែលដឹង នៅមុខ
           </h2>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto">
-            Get the latest forex and crypto news delivered straight to your inbox. Join 50,000+ traders and investors.
+            ទទួលព័ត៌មានពិភពលោកដែលផ្តល់ឥទ្ធិពលដល់គូប្រាក់ មាស និងគ្រីបធ័ផ្ទាល់ទៅអ៉ីមែលរបស់អ្នក។ ចូលរួមជាមួយអ្នកធ្វើដូច និងវិនិយោគិន ៥០,០០០+ នាក់។
           </p>
         </div>
 
@@ -56,7 +56,7 @@ export const NewsletterSection = () => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email address"
+              placeholder="បញ្ចូលអ៉ីមែលរបស់អ្នក"
               required
               className="flex-1 px-6 py-4 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent"
             />
@@ -66,7 +66,7 @@ export const NewsletterSection = () => {
               isLoading={isSubmitting}
               className="bg-white text-blue-600 hover:bg-gray-100 sm:w-auto whitespace-nowrap"
             >
-              Subscribe Now
+              ជាវឥឡូវ
             </Button>
           </div>
 
@@ -76,28 +76,28 @@ export const NewsletterSection = () => {
               <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
-              <span className="text-green-100 font-medium">Successfully subscribed! Check your inbox.</span>
+              <span className="text-green-100 font-medium">ជាវជោគជ័យ! សូមពិនិត្យអ៉ីមែលរបស់អ្នក។</span>
             </div>
           )}
 
           <p className="mt-4 text-sm text-blue-200 text-center">
-            We respect your privacy. Unsubscribe at any time.
+            យើងគោរពភាពឯកជនរបស់អ្នក។ លែងជាវគ្រប់ពេលបាន។
           </p>
         </form>
 
         {/* Features */}
         <div className="mt-12 grid sm:grid-cols-3 gap-6 text-center">
           <div>
-            <div className="text-2xl font-bold mb-1">Daily</div>
-            <div className="text-sm text-blue-200">Market Updates</div>
+            <div className="text-2xl font-bold mb-1">ប្រចាំថ្ងៃ</div>
+            <div className="text-sm text-blue-200">ព័ត៌មានពិភពលោក</div>
           </div>
           <div>
-            <div className="text-2xl font-bold mb-1">Expert</div>
-            <div className="text-sm text-blue-200">Analysis & Insights</div>
+            <div className="text-2xl font-bold mb-1">អ្នកជំនាញ</div>
+            <div className="text-sm text-blue-200">ការវិភាគ និងការយល់ដឹង</div>
           </div>
           <div>
-            <div className="text-2xl font-bold mb-1">Breaking</div>
-            <div className="text-sm text-blue-200">News Alerts</div>
+            <div className="text-2xl font-bold mb-1">ព័ត៌មាន</div>
+            <div className="text-sm text-blue-200">ការជូនដំណឹង</div>
           </div>
         </div>
       </div>

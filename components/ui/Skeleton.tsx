@@ -1,1 +1,1 @@
-// Forex & Crypto News - Skeleton Loader UI Component
+// CamboEA - Skeleton Loader UI Component

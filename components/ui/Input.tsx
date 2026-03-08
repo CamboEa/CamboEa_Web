@@ -1,1 +1,1 @@
-// Forex & Crypto News - Input UI Component
+// CamboEA - Input UI Component

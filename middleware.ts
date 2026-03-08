@@ -1,4 +1,4 @@
-// Forex & Crypto News - Middleware (for auth, redirects, etc.)
+// CamboEA - Middleware (for auth, redirects, etc.)
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 

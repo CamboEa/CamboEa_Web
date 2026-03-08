@@ -1,4 +1,4 @@
-// Forex & Crypto News - News List Feature Component
+// CamboEA - News List Feature Component
 
 import React from 'react';
 import { NewsCard } from './NewsCard';

@@ -1,1 +1,1 @@
-// Forex & Crypto News - Forex Custom Hook
+// CamboEA - Forex Custom Hook

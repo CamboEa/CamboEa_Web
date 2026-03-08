@@ -1,1 +1,1 @@
-// Forex & Crypto News - Formatting Utility Functions
+// CamboEA - Formatting Utility Functions

@@ -1,3 +1,3 @@
-// Forex & Crypto News - Type Definitions Barrel Export
+// CamboEA - Type Definitions Barrel Export
 
 export * from './news';

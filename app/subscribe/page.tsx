@@ -1,22 +1,22 @@
-// Forex & Crypto News - Subscribe / Community Page
+// CamboEA - Subscribe / Community Page
 
 import React from 'react';
 
 export const metadata = {
-  title: 'Subscribe | Forex & Crypto News',
-  description: 'Join our community on Telegram and Facebook for daily market updates and trading signals.',
+  title: 'ជាវ | CamboEA',
+  description: 'ចូលរួមសហគមន៍របស់យើងលើ Telegram និង Facebook សម្រាប់ព័ត៌មានពិភពលោកដែលផ្តល់ឥទ្ធិពលដល់ទីផ្សារ និងសញ្ញាធ្វើដូច។',
 };
 
 const SOCIAL_LINKS = [
   {
-    name: 'Telegram Group',
-    description: 'Daily signals, market updates, and community discussion.',
-    href: 'https://t.me/your_telegram_group',
+    name: 'ក្រុម Telegram',
+    description: 'សញ្ញាប្រចាំថ្ងៃ ព័ត៌មានពិភពលោក និងការពិភាក្សាសហគមន៍។',
+    href: 'https://t.me/camboea',
   },
   {
-    name: 'Facebook Page',
-    description: 'News highlights, education posts, and live updates.',
-    href: 'https://www.facebook.com/your_page',
+    name: 'ទំព័រ Facebook',
+    description: 'ព័ត៌មានពិសេស ការបង្រៀន និងព័ត៌មានផ្ទាល់។',
+    href: 'https://www.facebook.com/profile.php?id=61586942218663',
   },
 ];
 
@@ -44,11 +44,11 @@ function ExternalIcon() {
 export default function SubscribePage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      <section className="bg-linear-to-br from-blue-900 via-indigo-900 to-slate-900 text-white py-14">
+      <section className="bg-linear-to-br from-sky-600 via-blue-700 to-blue-900 text-white py-14">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-3">Subscribe</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold mb-3">ជាវ</h1>
           <p className="text-lg text-white/80 max-w-2xl">
-            Join our channels to receive trading signals, market news, and analysis. Pick the platform you prefer.
+            ចូលរួមឆានែលរបស់យើងដើម្បីទទួលសញ្ញាធ្វើដូច ព័ត៌មានពិភពលោកដែលផ្តល់ឥទ្ធិពលដល់ទីផ្សារ និងការវិភាគ។ ជ្រើសរើសវេទិកាដែលអ្នកចូលចិត្ត។
           </p>
         </div>
       </section>
@@ -74,7 +74,7 @@ export default function SubscribePage() {
               </div>
 
               <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-blue-600 dark:text-blue-400">
-                Open link
+                បើកតំណ
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path
                     d="M5 12h14m0 0-6-6m6 6-6 6"
@@ -86,16 +86,16 @@ export default function SubscribePage() {
                 </svg>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-500 mt-3">
-                Note: Replace the placeholder URL in code with your real link.
+                ចំណាំ៖ ជំនួស URL ជាបណ្តោះអាសន្នក្នុងកូដដោយតំណរបស់អ្នក។
               </p>
             </a>
           ))}
         </div>
 
         <div className="mt-10 bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">Need help?</h3>
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">ត្រូវការជំនួយ?</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            If you have trouble joining, message us on Telegram or Facebook and we will help you get access.
+            ប្រសិនអ្នកជួបការលំបាកក្នុងការចូលរួម សូមផ្ញើសារមកយើងតាម Telegram ឬ Facebook យើងនឹងជួយអ្នកឱ្យចូលបាន។
           </p>
         </div>
       </section>

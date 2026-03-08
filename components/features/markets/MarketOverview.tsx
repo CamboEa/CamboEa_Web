@@ -1,1 +1,1 @@
-// Forex & Crypto News - Market Overview Feature Component
+// CamboEA - Market Overview Feature Component

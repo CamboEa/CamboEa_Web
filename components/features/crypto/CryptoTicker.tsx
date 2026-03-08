@@ -1,1 +1,1 @@
-// Forex & Crypto News - Crypto Ticker Feature Component
+// CamboEA - Crypto Ticker Feature Component

@@ -13,25 +13,25 @@ interface Testimonial {
 const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Sarah Johnson',
-    role: 'Professional Trader',
+    role: 'អ្នកធ្វើដូចវិជ្ជាជីវៈ',
     company: 'Goldman Sachs',
-    content: 'The market analysis and real-time updates have significantly improved my trading decisions. Best finance news platform I\'ve used.',
+    content: 'ការវិភាគទីផ្សារ និងព័ត៌មានផ្ទាល់ជួយឱ្យការសម្រេចចិត្តធ្វើដូចរបស់ខ្ញុំប្រសើរឡើងយ៉ាងខ្លាំង។ វេទិកាព័ត៌មានហិរញ្ញវត្ថុល្អបំផុតដែលខ្ញុំបានប្រើ។',
     rating: 5,
     avatar: 'SJ',
   },
   {
     name: 'Michael Chen',
-    role: 'Crypto Investor',
+    role: 'វិនិយោគិនគ្រីបធ័',
     company: 'Independent',
-    content: 'Comprehensive crypto coverage with accurate data. The expert insights help me stay ahead of market trends.',
+    content: 'គ្របដណ្តប់គ្រីបធ័យ៉ាងទូលំទូលាយជាមួយទិន្នន័យត្រឹមត្រូវ។ ការយល់ដឹងអ្នកជំនាញជួយឱ្យខ្ញុំនៅមុខទីផ្សារ។',
     rating: 5,
     avatar: 'MC',
   },
   {
     name: 'Emma Williams',
-    role: 'Financial Analyst',
+    role: 'អ្នកវិភាគហិរញ្ញវត្ថុ',
     company: 'JP Morgan',
-    content: 'Professional-grade content that\'s accessible and timely. The newsletter alone is worth subscribing for.',
+    content: 'មាតិកាលក្ខណៈវិជ្ជាជីវៈ ងាយចូលដំណើរការ និងទាន់ពេល។ លេខព័ត៌មានតែមួយគឺគួរជាវរួចហើយ។',
     rating: 5,
     avatar: 'EW',
   },
@@ -44,10 +44,10 @@ export const TestimonialsSection = () => {
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Trusted by Professionals
+            គេទុកចិត្តដោយអ្នកជំនាញ
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Join thousands of traders and investors who rely on our platform daily
+            ចូលរួមជាមួយអ្នកធ្វើដូច និងវិនិយោគិនរាប់ពាន់នាក់ដែលពឹងផ្អែកលើវេទិការបស់យើងប្រចាំថ្ងៃ
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export const TestimonialsSection = () => {
 
                 {/* Author */}
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                  <div className="w-12 h-12 rounded-full bg-linear-to-br from-sky-400 to-blue-700 flex items-center justify-center text-white font-bold">
                     {testimonial.avatar}
                   </div>
                   <div>

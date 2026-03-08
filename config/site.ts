@@ -1,1 +1,1 @@
-// Forex & Crypto News - Site Configuration
+// CamboEA - Site Configuration

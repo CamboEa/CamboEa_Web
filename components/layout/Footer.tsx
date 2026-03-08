@@ -2,28 +2,27 @@ import React from 'react';
 import Link from 'next/link';
 
 const FOOTER_LINKS = {
-  Markets: [
-    { label: 'Forex Trading', href: '/forex' },
-    { label: 'Cryptocurrency', href: '/crypto' },
-    { label: 'Economic Calendar', href: '/calendar' },
-    { label: 'Market Analysis', href: '/analysis' },
+  'ទីផ្សារ': [
+    { label: 'ព័ត៌មានដែលផ្តល់ឥទ្ធិពលដល់ទីផ្សារ', href: '/markets' },
+    { label: 'ប្រតិទិនសេដ្ឋកិច្ច', href: '/calendar' },
+    { label: 'ការវិភាគទីផ្សារ', href: '/analysis' },
   ],
-  Resources: [
-    { label: 'Latest News', href: '/news' },
-    { label: 'Trading Guide', href: '/guide' },
-    { label: 'Market Data', href: '/data' },
+  'ធនធាន': [
+    { label: 'ព័ត៌មានចុងក្រោយ', href: '/news' },
+    { label: 'ការណែនាំធ្វើដូច', href: '/guide' },
+    { label: 'ទិន្នន័យទីផ្សារ', href: '/data' },
   ],
-  Company: [
-    { label: 'About Us', href: '/about' },
-    { label: 'Careers', href: '/careers' },
-    { label: 'Press Kit', href: '/press' },
-    { label: 'Contact', href: '/contact' },
+  'ក្រុមហ៊ុន': [
+    { label: 'អំពីយើង', href: '/about' },
+    { label: 'អាជីព', href: '/careers' },
+    { label: 'សម្ភារៈព័ត៌មាន', href: '/press' },
+    { label: 'ទំនាក់ទំនង', href: '/contact' },
   ],
-  Legal: [
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
-    { label: 'Cookie Policy', href: '/cookies' },
-    { label: 'Disclaimer', href: '/disclaimer' },
+  'ផ្លូវការ': [
+    { label: 'គោលការណ៍ភាពឯកជន', href: '/privacy' },
+    { label: 'លក្ខខណ្ឌសេវាកម្ម', href: '/terms' },
+    { label: 'គោលការណ៍ខូឃី', href: '/cookies' },
+    { label: 'ការបដិសេធ', href: '/disclaimer' },
   ],
 };
 
@@ -77,7 +76,7 @@ export const Footer = () => {
           {/* Brand Column */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="bg-linear-to-br from-blue-600 to-purple-600 p-2 rounded-lg">
+              <div className="bg-linear-to-br from-sky-400 to-blue-700 p-2 rounded-lg">
                 <svg
                   className="w-6 h-6 text-white"
                   fill="none"
@@ -94,13 +93,13 @@ export const Footer = () => {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-white leading-none">
-                  Forex&Crypto
+                  CamboEA
                 </span>
-                <span className="text-xs text-gray-400 leading-none">News</span>
+                <span className="text-xs text-gray-400 leading-none">ទីផ្សារឆ្លាតវៃ</span>
               </div>
             </Link>
             <p className="text-sm text-gray-400 mb-4 max-w-xs">
-              Your trusted source for real-time forex and cryptocurrency news, market analysis, and expert insights.
+              ប្រភពដែលអ្នកទុកចិត្តសម្រាប់ព័ត៌មានពិភពលោកដែលផ្តល់ឥទ្ធិពលដល់គូប្រាក់ មាស និងគ្រីបធ័ និងការវិភាគអ្នកជំនាញ។
             </p>
             {/* Social Links */}
             <div className="flex gap-3">
@@ -145,17 +144,17 @@ export const Footer = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
             <p className="text-sm text-gray-400">
-              © {currentYear} Forex&Crypto News. All rights reserved.
+              © {currentYear} CamboEA. រក្សាសិទ្ធិគ្រប់យ៉ាង។
             </p>
             <div className="flex items-center gap-6 text-sm">
               <Link href="/privacy" className="hover:text-white transition-colors">
-                Privacy
+                ភាពឯកជន
               </Link>
               <Link href="/terms" className="hover:text-white transition-colors">
-                Terms
+                លក្ខខណ្ឌ
               </Link>
               <Link href="/sitemap" className="hover:text-white transition-colors">
-                Sitemap
+                ផែនទីគេហទំព័រ
               </Link>
             </div>
           </div>

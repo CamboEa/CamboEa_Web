@@ -15,34 +15,22 @@ interface Category {
 
 const CATEGORIES: Category[] = [
   {
-    name: 'Forex Trading',
-    description: 'Currency pairs, market analysis, and trading strategies',
-    href: '/forex',
-    color: 'from-green-500 to-emerald-600',
-    articles: 245,
+    name: 'ទីផ្សារ',
+    description: 'ព័ត៌មានពិភពលោកដែលផ្តល់ឥទ្ធិពលដល់គូប្រាក់ មាស និងគ្រីបធ័',
+    href: '/markets',
+    color: 'from-blue-500 to-indigo-600',
+    articles: 557,
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
       </svg>
     ),
   },
   {
-    name: 'Cryptocurrency',
-    description: 'Bitcoin, altcoins, blockchain technology, and crypto markets',
-    href: '/crypto',
-    color: 'from-orange-500 to-red-600',
-    articles: 312,
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-      </svg>
-    ),
-  },
-  {
-    name: 'Trading Signals',
-    description: 'Expert entry/exit points with stop loss and take profit levels',
+    name: 'សញ្ញាធ្វើដូច',
+    description: 'ចំណុចចូល/ចេញអ្នកជំនាញ ជាមួយ stop loss និង take profit',
     href: '/analysis',
-    color: 'from-purple-500 to-pink-600',
+    color: 'from-sky-400 to-blue-600',
     articles: 189,
     icon: (
       <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,8 +39,8 @@ const CATEGORIES: Category[] = [
     ),
   },
   {
-    name: 'Economic Calendar',
-    description: 'This week\'s economic events, releases, and high-impact news',
+    name: 'ប្រតិទិនសេដ្ឋកិច្ច',
+    description: 'ព្រឹត្តិការណ៍សេដ្ឋកិច្ច ការចេញផ្សាយ និងព័ត៌មានឥទ្ធិពលខ្ពស់',
     href: '/calendar',
     color: 'from-blue-500 to-cyan-600',
     articles: 0,
@@ -71,13 +59,13 @@ export const CategorySection = () => {
         {/* Section Header */}
         <AnimatedSection animation="fade-in-up" className="text-center mb-16">
           <span className="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full text-sm font-semibold mb-4">
-            EXPLORE
+            រុករក
           </span>
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Explore by <span className="gradient-text">Category</span>
+            រុករកតាម <span className="gradient-text">ចំណាត់ថ្នាក់</span>
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            Dive deep into specialized content tailored to your interests
+            រកយល់ដឹងជ្រៅជ្រះយ៉ាងពិសេសតាមចំណាប់អារម្មណ៍របស់អ្នក
           </p>
         </AnimatedSection>
 
@@ -118,10 +106,10 @@ export const CategorySection = () => {
                     <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                       <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-1">
                         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                        {category.articles} articles
+                        {category.articles} អត្ថបទ
                       </span>
                       <div className="flex items-center gap-1 text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        <span className="text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">Explore</span>
+                        <span className="text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">រុករក</span>
                         <svg className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>

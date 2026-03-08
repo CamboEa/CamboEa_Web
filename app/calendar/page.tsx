@@ -3,8 +3,8 @@ import { EconomicCalendarClient, type CalendarEvent } from '@/app/calendar/Econo
 const API_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
 
 export const metadata = {
-  title: 'Economic Calendar | Forex & Crypto News',
-  description: 'This week\'s economic events: releases, speeches, and key data. Plan your trading around high-impact news.',
+  title: 'ប្រតិទិនសេដ្ឋកិច្ច | CamboEA',
+  description: 'ព្រឹត្តិការណ៍សេដ្ឋកិច្ចសប្តាហ៍នេះ៖ ការចេញផ្សាយ ការថ្លែងយោបល់ និងទិន្នន័យសំខាន់។ រៀបចំធ្វើដូចជុំវិញព័ត៌មានឥទ្ធិពលខ្ពស់។',
 };
 
 async function getCalendarEvents(): Promise<CalendarEvent[]> {

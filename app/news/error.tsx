@@ -1,6 +1,6 @@
 'use client';
 
-// Forex & Crypto News - News Error State
+// CamboEA - News Error State
 
 import { Button } from '@/components/ui';
 
@@ -30,17 +30,17 @@ export default function NewsError({
           </svg>
         </div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Oops! Something went wrong
+          អូ! មានបញ្ហាកើតឡើង
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          {error.message || 'Failed to load news content. Please try again.'}
+          {error.message || 'ផ្ទុកមាតិកាព័ត៌មានមិនបាន។ សូមព្យាយាមម្តងទៀត។'}
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Button onClick={reset} variant="primary">
-            Try Again
+            ព្យាយាមម្តងទៀត
           </Button>
           <Button onClick={() => window.location.href = '/news'} variant="outline">
-            Back to News
+            ត្រលប់ទៅព័ត៌មាន
           </Button>
         </div>
       </div>

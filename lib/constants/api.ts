@@ -1,1 +1,1 @@
-// Forex & Crypto News - API Constants
+// CamboEA - API Constants

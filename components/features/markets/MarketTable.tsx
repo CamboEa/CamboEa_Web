@@ -1,1 +1,1 @@
-// Forex & Crypto News - Market Table Feature Component
+// CamboEA - Market Table Feature Component

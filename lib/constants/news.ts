@@ -1,1 +1,1 @@
-// Forex & Crypto News - News Constants
+// CamboEA - News Constants

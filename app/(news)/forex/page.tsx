@@ -1,4 +1,4 @@
-// Forex & Crypto News - Forex News Route Group
+// CamboEA - Forex News Route Group
 
 import React from 'react';
 import Link from 'next/link';
@@ -6,7 +6,7 @@ import { getNewsByCategory } from '@/lib/api/news';
 import { NewsList } from '@/components/features/news/NewsList';
 
 export const metadata = {
-  title: 'Forex News | Forex & Crypto News',
+  title: 'Forex News | CamboEA',
   description: 'Latest forex news, currency pair analysis, price predictions, and trading insights for EUR/USD, GBP/USD, USD/JPY and more.',
 };
 

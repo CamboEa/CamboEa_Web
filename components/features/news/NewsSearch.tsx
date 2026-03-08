@@ -1,1 +1,1 @@
-// Forex & Crypto News - News Search Feature Component
+// CamboEA - News Search Feature Component

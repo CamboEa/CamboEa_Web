@@ -1,1 +1,1 @@
-// Forex & Crypto News - Crypto Chart Feature Component
+// CamboEA - Crypto Chart Feature Component

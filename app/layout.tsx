@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Noto_Sans_Khmer } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -15,10 +16,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const notoSansKhmer = Noto_Sans_Khmer({
+  variable: "--font-khmer",
+  subsets: ["khmer"],
+});
+
 export const metadata: Metadata = {
-  title: "Forex & Crypto News - Your Gateway to Market Intelligence",
-  description: "Stay ahead with real-time news, expert analysis, and comprehensive coverage of forex and cryptocurrency markets. Get daily updates, market insights, and breaking news.",
-  keywords: ["forex", "crypto", "cryptocurrency", "bitcoin", "trading", "market analysis", "financial news"],
+  title: "CamboEA - ច្រកចូលទៅកាន់ទីផ្សារឆ្លាតវៃ",
+  description: "ព័ត៌មានពិភពលោកដែលអាចផ្តល់ឥទ្ធិពលដល់គូប្រាក់ មាស និងគ្រីបធ័។ នៅចម្ងាយមុខជាមួយព្រឹត្តិការណ៍សកល ការវិភាគអ្នកជំនាញ និងសញ្ញាធ្វើដូច។",
+  keywords: ["camboea", "forex", "crypto", "cryptocurrency", "bitcoin", "trading", "market analysis", "financial news", "cambodia", "ខ្មែរ"],
 };
 
 export default function RootLayout({
@@ -27,9 +33,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="km" className={notoSansKhmer.variable}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${notoSansKhmer.variable} font-sans antialiased`}
       >
         <Header />
         <section className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">

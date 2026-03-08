@@ -1,1 +1,1 @@
-// Forex & Crypto News - API Type Definitions
+// CamboEA - API Type Definitions

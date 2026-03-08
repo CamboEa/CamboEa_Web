@@ -1,1 +1,1 @@
-// Forex & Crypto News - API Routes Handler
+// CamboEA - API Routes Handler

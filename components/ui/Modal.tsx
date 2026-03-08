@@ -1,1 +1,1 @@
-// Forex & Crypto News - Modal UI Component
+// CamboEA - Modal UI Component

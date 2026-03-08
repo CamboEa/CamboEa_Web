@@ -1,1 +1,1 @@
-// Forex & Crypto News - Crypto API Functions
+// CamboEA - Crypto API Functions

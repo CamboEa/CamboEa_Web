@@ -1,1 +1,1 @@
-// Forex & Crypto News - API Client Configuration
+// CamboEA - API Client Configuration

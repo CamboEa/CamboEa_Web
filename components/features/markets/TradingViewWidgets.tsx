@@ -1,6 +1,6 @@
 'use client';
 
-// Forex & Crypto News - TradingView Widget Components
+// CamboEA - TradingView Widget Components
 // Optimized with lazy loading, skeleton states, and persistence
 
 import React, { useEffect, useRef, memo, useState, useCallback } from 'react';
@@ -13,7 +13,7 @@ const WidgetSkeleton = ({ height }: { height: number }) => (
   >
     <div className="text-center">
       <div className="inline-block w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3"></div>
-      <p className="text-sm text-gray-500 dark:text-gray-400">Loading chart...</p>
+      <p className="text-sm text-gray-500 dark:text-gray-400">កំពុងផ្ទុកជារៀប...</p>
     </div>
   </div>
 );
@@ -292,17 +292,33 @@ export const TradingViewMiniChart = memo(function TradingViewMiniChart({
   );
 });
 
+const MARKET_OVERVIEW_HEADER_OFFSET = 200;
+
 interface TradingViewMarketOverviewProps {
   height?: number;
+  /** If true, widget fills viewport height (minus header offset) */
+  fullHeight?: boolean;
 }
 
 // Market Overview Widget with Lazy Loading
 export const TradingViewMarketOverview = memo(function TradingViewMarketOverview({ 
-  height = 450 
+  height = 450,
+  fullHeight = false,
 }: TradingViewMarketOverviewProps) {
   const container = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [dynamicHeight, setDynamicHeight] = useState(500);
   const { ref: viewRef, inView } = useInView();
+
+  const effectiveHeight = fullHeight ? dynamicHeight : height;
+
+  useEffect(() => {
+    if (!fullHeight) return;
+    const update = () => setDynamicHeight(Math.max(400, window.innerHeight - MARKET_OVERVIEW_HEADER_OFFSET));
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [fullHeight]);
 
   useEffect(() => {
     if (!inView || !container.current) return;
@@ -317,7 +333,7 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
       showChart: true,
       locale: 'en',
       width: '100%',
-      height: height,
+      height: effectiveHeight,
       largeChartUrl: '',
       isTransparent: false,
       showSymbolLogo: true,
@@ -344,6 +360,15 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
           originalTitle: 'Forex',
         },
         {
+          title: 'Metals',
+          symbols: [
+            { s: 'TVC:GOLD', d: 'XAU/USD' },
+            { s: 'TVC:SILVER', d: 'XAG/USD' },
+            { s: 'TVC:PLATINUM', d: 'XPT/USD' },
+          ],
+          originalTitle: 'Metals',
+        },
+        {
           title: 'Crypto',
           symbols: [
             { s: 'BITSTAMP:BTCUSD', d: 'BTC/USD' },
@@ -359,15 +384,15 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
 
     script.onload = () => setIsLoaded(true);
     container.current.appendChild(script);
-  }, [height, inView]);
+  }, [effectiveHeight, inView]);
 
   return (
-    <div ref={viewRef} style={{ minHeight: height }}>
-      {!isLoaded && <WidgetSkeleton height={height} />}
+    <div ref={viewRef} style={{ minHeight: effectiveHeight }}>
+      {!isLoaded && <WidgetSkeleton height={effectiveHeight} />}
       <div 
         className={`tradingview-widget-container transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0 absolute'}`}
         ref={container} 
-        style={{ height }}
+        style={{ height: effectiveHeight }}
       >
         <div className="tradingview-widget-container__widget"></div>
       </div>

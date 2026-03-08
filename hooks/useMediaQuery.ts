@@ -1,1 +1,1 @@
-// Forex & Crypto News - Media Query Custom Hook
+// CamboEA - Media Query Custom Hook

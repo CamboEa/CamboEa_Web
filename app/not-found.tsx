@@ -25,14 +25,14 @@ export default function NotFound() {
           404
         </h1>
         <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300 mb-4">
-          Page Not Found
+          រកទំព័រមិនឃើញ
         </h2>
         <p className="text-gray-600 dark:text-gray-400 mb-6">
-          Sorry, we couldn't find the page you're looking for. It might have been moved or deleted.
+          សូមអភ័យទោស យើងរកទំព័រដែលអ្នកកំពុងស្វែងរកមិនឃើញ។ វាអាចត្រូវបានផ្លាស់ទី ឬលុបចោល។
         </p>
         <Link href="/">
           <Button variant="primary">
-            Back to Home
+            ត្រលប់ទៅផ្ទះ
           </Button>
         </Link>
       </div>

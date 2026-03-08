@@ -1,1 +1,1 @@
-// Forex & Crypto News - Sidebar Component
+// CamboEA - Sidebar Component

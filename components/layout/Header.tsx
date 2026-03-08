@@ -7,11 +7,10 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui';
 
 const NAV_LINKS = [
-  { href: '/news', label: 'News' },
-  { href: '/forex', label: 'Forex' },
-  { href: '/crypto', label: 'Crypto' },
-  { href: '/calendar', label: 'Economic Calendar' },
-  { href: '/analysis', label: 'Analysis' },
+  { href: '/news', label: 'ព័ត៌មាន' },
+  { href: '/markets', label: 'ទីផ្សារ' },
+  { href: '/calendar', label: 'ប្រតិទិនសេដ្ឋកិច្ច' },
+  { href: '/analysis', label: 'ការវិភាគ' },
 ];
 
 export const Header = () => {
@@ -48,10 +47,10 @@ export const Header = () => {
           <Link href="/" className="flex items-center group">
             <Image
               src="/images/logos/logo.png"
-              alt="Forex & Crypto News"
+              alt="CamboEA"
               width={260}
               height={148}
-              className="h-10 w-auto object-contain group-hover:opacity-90 transition-opacity"
+              className="h-40 lg:h-48 w-auto object-contain group-hover:opacity-90 transition-opacity"
               priority
             />
           </Link>
@@ -78,7 +77,7 @@ export const Header = () => {
             {/* Search Button */}
             <button
               className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              aria-label="Search"
+              aria-label="ស្វែងរក"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -93,7 +92,7 @@ export const Header = () => {
             {/* Theme Toggle */}
             <button
               className="hidden sm:block p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              aria-label="Toggle theme"
+              aria-label="ផ្លាស់ប្តូររូបរាង"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
@@ -107,14 +106,14 @@ export const Header = () => {
 
             {/* CTA Button - Desktop */}
             <Button size="sm" className="hidden sm:inline-flex" onClick={handleSubscribeClick}>
-              Subscribe
+              ជាវ
             </Button>
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-              aria-label="Toggle menu"
+              aria-label="បើក/បិទម៉ឺនុយ"
             >
               {isMobileMenuOpen ? (
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -158,7 +157,7 @@ export const Header = () => {
                 </Link>
               ))}
               <Button size="sm" className="mt-2" onClick={handleSubscribeClick}>
-                Subscribe
+                ជាវ
               </Button>
             </div>
           </div>

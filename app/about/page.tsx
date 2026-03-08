@@ -1,1 +1,1 @@
-// Forex & Crypto News - About Page
+// CamboEA - About Page

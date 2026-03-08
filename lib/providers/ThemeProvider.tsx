@@ -1,1 +1,1 @@
-// Forex & Crypto News - Theme Provider
+// CamboEA - Theme Provider
