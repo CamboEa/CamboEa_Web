@@ -1,21 +1,5 @@
-import {
-  HeroSection,
-  FeaturedNews,
-  CategorySection,
-  StatsSection,
-  TestimonialsSection,
-  NewsletterSection,
-} from '@/components/home';
+import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  return (
-    <main className="min-h-screen">
-      {/* <HeroSection /> */}
-      <FeaturedNews />
-      <CategorySection />
-      <StatsSection />
-      <TestimonialsSection />
-      <NewsletterSection />
-    </main>
-  );
+  redirect('/news');
 }
