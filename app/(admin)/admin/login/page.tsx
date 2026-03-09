@@ -2,31 +2,55 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getSupabaseBrowserClient } from '@/lib/supabase-client';
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage('');
+    setLoading(true);
     const form = e.currentTarget;
     const formData = new FormData(form);
-    const res = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: formData.get('email'),
-        password: formData.get('password'),
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (res.ok && data.ok) {
+    const email = String(formData.get('email') ?? '').trim();
+    const password = String(formData.get('password') ?? '');
+
+    try {
+      const supabase = getSupabaseBrowserClient();
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error || !data.user) {
+        setMessage(error?.message || 'ការចូលបរាជ័យ');
+        return;
+      }
+
+      // Ensure this user is an admin
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+
+      if (profileError || !profile || profile.role !== 'admin') {
+        await supabase.auth.signOut();
+        setMessage('គណនីនេះមិនមានសិទ្ធិគ្រប់គ្រងទេ');
+        return;
+      }
+
       router.push('/admin');
       router.refresh();
-      return;
+    } catch (err) {
+      setMessage('មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់សេវា Supabase');
+    } finally {
+      setLoading(false);
     }
-    setMessage(data.message || 'ការចូលបរាជ័យ');
   };
 
   return (
@@ -71,9 +95,10 @@ export default function AdminLoginPage() {
           )}
           <button
             type="submit"
+            disabled={loading}
             className="w-full rounded-lg bg-blue-600 text-white py-2 text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
           >
-            ចូល
+            {loading ? 'កំពុងចូល...' : 'ចូល'}
           </button>
         </form>
         <p className="mt-4 text-xs text-gray-500 dark:text-gray-400 text-center">

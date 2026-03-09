@@ -19,6 +19,8 @@ export interface NewsArticle {
   title: string;
   excerpt: string;
   content: string;
+  docxPath?: string;
+  impact?: string;         // ផលប៉ះពាល់
   category: NewsCategory;
   tags: string[];
   author: {

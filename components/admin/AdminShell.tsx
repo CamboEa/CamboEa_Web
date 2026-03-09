@@ -1,18 +1,35 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const ADMIN_NAV = [
-  { href: '/admin', label: 'ផ្ទាំងគ្រប់គ្រង', exact: true },
+  { href: '/admin', label: 'ផ្ទាំងគ្រប់គ្រង' },
+  { href: '/admin/news', label: 'ព័ត៌មាន' },
+  { href: '/admin/markets', label: 'ទីផ្សារ' },
+  { href: '/admin/users', label: 'អ្នកប្រើ' },
+  { href: '/admin/ea-bot', label: 'EA Bot Management' },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLoginPage = pathname === '/admin/login';
+  const router = useRouter();
+  const [loggingOut, setLoggingOut] = useState(false);
+  const isAuthPage = pathname === '/admin/login' || pathname === '/admin/pin';
 
-  if (isLoginPage) {
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' });
+      router.push('/admin/pin');
+      router.refresh();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
+  if (isAuthPage) {
     return <>{children}</>;
   }
 
@@ -25,17 +42,32 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
         <nav className="p-2 flex-1">
-          {ADMIN_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {ADMIN_NAV.map((item) => {
+            const isActive = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`block px-3 py-2 rounded-lg text-sm font-medium ${
+                  isActive
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
-        <div className="p-2 border-t border-gray-200 dark:border-gray-800">
+        <div className="p-2 border-t border-gray-200 dark:border-gray-800 space-y-1">
+          <button
+            type="button"
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50"
+          >
+            {loggingOut ? '...' : 'ចាកចេញ'}
+          </button>
           <Link
             href="/"
             className="block px-3 py-2 rounded-lg text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"

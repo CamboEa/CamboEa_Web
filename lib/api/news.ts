@@ -1,9 +1,10 @@
-// CamboEA - News API Functions
+// CamboEA - News API Functions (Supabase-backed, with SAMPLE_NEWS fallback)
 
+import { createClient } from '@supabase/supabase-js';
 import { NewsArticle, NewsCategory, NewsFilters } from '@/types';
 
-// World news that impacts currencies, gold, and crypto
-const SAMPLE_NEWS: NewsArticle[] = [
+// World news that impacts currencies, gold, and crypto (fallback when no data file)
+export const SAMPLE_NEWS: NewsArticle[] = [
   {
     id: 'btc-1',
     slug: 'fed-interest-rate-decision-january-2026',
@@ -191,14 +192,93 @@ const SAMPLE_NEWS: NewsArticle[] = [
       targetDate: '2026-01-22T00:00:00Z',
     },
   },
+  {
+    id: 'docx-sample-1',
+    slug: 'geopolitical-polycrisis-operation-epic-fury',
+    title:
+      'The Geopolitical Polycrisis of 2026: Operation Epic Fury and the Transformation of Global Market Psychology',
+    excerpt:
+      'Sample article rendered directly from a DOCX file so you can preview the exact document formatting inside the CamboEA news layout.',
+    content: '',
+    docxPath:
+      '/mock_data/The Geopolitical Polycrisis of 2026_ Operation Epic Fury and the Transformation of Global Market Psychology.docx',
+    category: 'forex',
+    tags: ['sample', 'docx', 'geopolitics'],
+    author: {
+      name: 'CamboEA Research',
+    },
+    publishedAt: '2026-01-22T08:00:00Z',
+    readTime: '១០ នាទីអាន',
+    featured: false,
+  },
 ];
+
+function getSupabasePublicClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const anonKey =
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+
+  if (!url || !anonKey) return null;
+  return createClient(url, anonKey);
+}
+
+async function fetchNewsFromSupabase(): Promise<NewsArticle[] | null> {
+  const supabase = getSupabasePublicClient();
+  if (!supabase) return null;
+
+  const { data, error } = await supabase
+    .from('news')
+    .select(
+      'id, slug, title, excerpt, content, impact, category, tags, author_name, published_at, updated_at, read_time, image, featured, prediction, docx_path'
+    )
+    .order('published_at', { ascending: false });
+
+  if (error || !data) {
+    console.error('Failed to fetch news from Supabase:', error?.message);
+    return null;
+  }
+
+  return data.map((row: any): NewsArticle => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    content: row.content ?? '',
+    impact: row.impact ?? undefined,
+    category: row.category as NewsCategory,
+    tags: Array.isArray(row.tags) ? row.tags : [],
+    author: {
+      name: row.author_name ?? 'Admin',
+    },
+    publishedAt: row.published_at,
+    updatedAt: row.updated_at ?? undefined,
+    readTime: row.read_time ?? '៥ នាទីអាន',
+    image: row.image ?? undefined,
+    featured: !!row.featured,
+    prediction: row.prediction ?? undefined,
+    docxPath: row.docx_path ?? undefined,
+  }));
+}
+
+// Get current articles (from Supabase or fallback to sample)
+export async function getCurrentArticles(): Promise<NewsArticle[]> {
+  const fromSupabase = await fetchNewsFromSupabase();
+  if (fromSupabase && fromSupabase.length > 0) {
+    return fromSupabase;
+  }
+
+  // Fallback to SAMPLE_NEWS when Supabase is not configured or empty
+  return [...SAMPLE_NEWS].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  );
+}
 
 // Get all news articles with optional filtering
 export async function getNewsArticles(filters?: NewsFilters): Promise<NewsArticle[]> {
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => setTimeout(resolve, 50));
 
-  let articles = [...SAMPLE_NEWS];
+  let articles = await getCurrentArticles();
 
   if (filters?.category) {
     articles = articles.filter(a => a.category === filters.category);
@@ -221,9 +301,6 @@ export async function getNewsArticles(filters?: NewsFilters): Promise<NewsArticl
     articles = articles.filter(a => a.featured === filters.featured);
   }
 
-  // Sort by date (newest first)
-  articles.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
-
   return articles;
 }
 
@@ -240,8 +317,47 @@ export async function getNewsByMarkets(): Promise<NewsArticle[]> {
 
 // Get a single article by slug
 export async function getArticleBySlug(slug: string): Promise<NewsArticle | null> {
-  await new Promise(resolve => setTimeout(resolve, 100));
-  return SAMPLE_NEWS.find(a => a.slug === slug) || null;
+  const supabase = getSupabasePublicClient();
+  if (supabase) {
+    const { data, error } = await supabase
+      .from('news')
+      .select(
+        'id, slug, title, excerpt, content, impact, category, tags, author_name, published_at, updated_at, read_time, image, featured, prediction, docx_path'
+      )
+      .eq('slug', slug)
+      .maybeSingle();
+
+    if (!error && data) {
+      return {
+        id: data.id,
+        slug: data.slug,
+        title: data.title,
+        excerpt: data.excerpt,
+        content: data.content ?? '',
+        impact: data.impact ?? undefined,
+        category: data.category as NewsCategory,
+        tags: Array.isArray(data.tags) ? data.tags : [],
+        author: {
+          name: data.author_name ?? 'Admin',
+        },
+        publishedAt: data.published_at,
+        updatedAt: data.updated_at ?? undefined,
+        readTime: data.read_time ?? '៥ នាទីអាន',
+        image: data.image ?? undefined,
+        featured: !!data.featured,
+        prediction: data.prediction ?? undefined,
+        docxPath: data.docx_path ?? undefined,
+      };
+    }
+  }
+
+  // Fallback: also check SAMPLE_NEWS explicitly
+  const fromSample = SAMPLE_NEWS.find(a => a.slug === slug);
+  if (fromSample) return fromSample;
+
+  // As a final fallback, search the composed current articles (may include samples)
+  const articles = await getCurrentArticles();
+  return articles.find(a => a.slug === slug) || null;
 }
 
 // Get featured articles

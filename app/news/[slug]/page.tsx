@@ -6,7 +6,8 @@ import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getArticleBySlug, getRelatedArticles, getNewsArticles } from '@/lib/api/news';
 import { NewsCard } from '@/components/features/news/NewsCard';
-
+import { sanitizeArticleContent, isHtmlContent } from '@/lib/sanitize-article-html';
+import { getDocxAsHtml } from '@/lib/docx-to-html';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -42,6 +43,22 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
   }
 
   const relatedArticles = await getRelatedArticles(article, 3);
+
+  const docUrl = article.docxPath
+    ? (article.docxPath.startsWith('http')
+        ? article.docxPath
+        : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${article.docxPath}`)
+    : '';
+
+  // Fetch DOCX and convert to HTML so we can display it on the page (no Office Online needed).
+  let docxHtml: string | null = null;
+  if (docUrl) {
+    try {
+      docxHtml = await getDocxAsHtml(docUrl);
+    } catch (e) {
+      console.error('Failed to load DOCX for article:', e);
+    }
+  }
 
   const getCategoryColor = (category: string) => {
     return category === 'crypto' ? 'bg-orange-500' : 'bg-green-500';
@@ -109,33 +126,59 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 </div>
               )}
 
+              {/* DOCX content: display as HTML on the page (works even when file is not publicly embeddable) */}
+              {article.docxPath && (
+                <div className="mb-8 space-y-3">
+                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                    មើលឯកសារ Word ដើម
+                  </h2>
+                  {docxHtml ? (
+                    <div
+                      className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 prose prose-lg dark:prose-invert max-w-none prose-table:border prose-table:border-gray-200 dark:prose-table:border-gray-700 prose-img:rounded-lg text-gray-700 dark:text-gray-300"
+                      dangerouslySetInnerHTML={{ __html: docxHtml }}
+                    />
+                  ) : (
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      មិនអាចដាក់បង្ហាញឯកសារបាន។ សូមទាញយកហើយបើកជាមួយ Microsoft Word។
+                    </p>
+                  )}
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <a
+                      href={docUrl || article.docxPath}
+                      className="underline hover:text-gray-700 dark:hover:text-gray-300"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      ទាញយកឯកសារ Word
+                    </a>
+                  </p>
+                </div>
+              )}
+
               {/* Article Content */}
-              <div className="prose prose-lg dark:prose-invert max-w-none">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  {article.content || article.excerpt}
-                </p>
-                
-                {/* Placeholder content for demo */}
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-6">
-                  នេះគឺជាការវិភាគលម្អិតអំពីស្ថានភាពទីផ្សារបច្ចុប្បន្ន និងការព្យាករណ៍របស់យើងសម្រាប់វគ្គធ្វើដូចខាងមុខ។ 
-                  យើងបានវិភាគសូចនាករបច្ចេកទេសច្រើន កត្តាមូលដ្ឋាន និងអារម្មណ៍ទីផ្សារដើម្បីផ្តល់ឱ្យអ្នកនូវ 
-                  ការយល់ដឹងអាចអនុវត្តបាន។
-                </p>
-
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">ចំណុចសំខាន់</h2>
-                <ul className="list-disc list-inside space-y-2 text-gray-700 dark:text-gray-300">
-                  <li>អារម្មណ៍ទីផ្សារនៅតែមានការសង្ឃឹមដោយប្រុងប្រយ័ត្ន</li>
-                  <li>សូចនាករបច្ចេកទេសបង្ហាញកម្រិត breakout ដែលអាចមាន</li>
-                  <li>កត្តាមូលដ្ឋានគាំទ្រទិសដៅរបស់យើង</li>
-                  <li>ការគ្រប់គ្រងហានិភ័យមានសារៈសំខាន់ក្នុងភាពចល័តបច្ចុប្បន្ន</li>
-                </ul>
-
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">ការវិភាគបច្ចេកទេស</h2>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  ការវិភាគបច្ចេកទេសរបស់យើងបង្ហាញកម្រិតគាំទ្រ និងការរារែកសំខាន់ៗជាច្រើនដែលអ្នកធ្វើដូចគួរតាមដាន។ 
-                  សកម្មភាពតម្លៃបច្ចុប្បន្នបង្ហាញពីលទ្ធផលបន្តដោយមានសក្តានុពលចលនាខ្លាំង 
-                  ក្នុងទិសដៅការព្យាករណ៍របស់យើង។
-                </p>
+              <div className="prose prose-lg dark:prose-invert max-w-none prose-table:border prose-table:border-gray-200 dark:prose-table:border-gray-700 prose-img:rounded-lg">
+                {article.docxPath ? (
+                  // For DOCX-backed articles, we only show the embedded viewer above.
+                  // Keep a minimal fallback message or excerpt here.
+                  <div
+                    className="article-content text-gray-700 dark:text-gray-300"
+                  >
+                    <p className="leading-relaxed">
+                      មាតិកាអត្ថបទនេះត្រូវបានបង្ហាញនៅក្នុងឯកសារ Word ដើមខាងលើ។
+                    </p>
+                  </div>
+                ) : isHtmlContent(article.content || '') ? (
+                  <div
+                    className="article-content text-gray-700 dark:text-gray-300"
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizeArticleContent(article.content || ''),
+                    }}
+                  />
+                ) : (
+                  <p className="leading-relaxed whitespace-pre-wrap">
+                    {article.content || article.excerpt}
+                  </p>
+                )}
               </div>
 
               {/* Tags */}

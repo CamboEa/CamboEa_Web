@@ -50,17 +50,17 @@ function formatIctTime(openUtc: number, closeUtc: number): string {
 const CAMBODIA_TZ = 'Asia/Phnom_Penh';
 
 export function TradingSessionZone() {
-  const [utcHour, setUtcHour] = useState(() => new Date().getUTCHours());
-  const [ictNow, setIctNow] = useState(() =>
-    new Date().toLocaleTimeString('en-GB', { timeZone: CAMBODIA_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })
-  );
+  const [utcHour, setUtcHour] = useState(0);
+  const [ictNow, setIctNow] = useState('--:--:--');
 
   useEffect(() => {
-    const t = setInterval(() => {
+    const update = () => {
       const d = new Date();
       setUtcHour(d.getUTCHours());
       setIctNow(d.toLocaleTimeString('en-GB', { timeZone: CAMBODIA_TZ, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
-    }, 1000);
+    };
+    update();
+    const t = setInterval(update, 1000);
     return () => clearInterval(t);
   }, []);
 
@@ -73,7 +73,7 @@ export function TradingSessionZone() {
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
           តំបន់ (Session Zone)
         </h3>
-        <p className="text-sm font-medium text-gray-900 dark:text-white mt-1 tabular-nums">
+        <p className="text-sm font-medium text-gray-900 dark:text-white mt-1 tabular-nums" suppressHydrationWarning>
           កម្ពុជា {ictNow} (ICT)
         </p>
       </div>

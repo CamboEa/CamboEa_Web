@@ -1,0 +1,205 @@
+[
+  {
+    "id": "btc-2",
+    "slug": "european-central-bank-rate-cut-signal",
+    "title": "ធនាគារកណ្តាលអឺរ៉ុបផ្តល់សញ្ញាកាត់បន្ថយអត្រា — EUR/USD និងទីផ្សារគ្រីបធ័",
+    "excerpt": "ECB បង្ហាញថាអាចកាត់បន្ថយអត្រាការប្រាក់នាពេលខាងមុខ ធ្វើឱ្យអឺរ៉ុបខ្សោយ និងផ្តល់ឥទ្ធិពលដល់គូប្រាក់។",
+    "content": "Full article content here...",
+    "category": "crypto",
+    "tags": [
+      "ecb",
+      "euro",
+      "eur-usd",
+      "interest-rates"
+    ],
+    "author": {
+      "name": "Michael Torres"
+    },
+    "publishedAt": "2026-01-21T06:30:00Z",
+    "readTime": "៦ នាទីអាន",
+    "image": "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80",
+    "prediction": {
+      "asset": "BTC/USD",
+      "currentPrice": 52345,
+      "predictedPrice": 55000,
+      "direction": "bullish",
+      "confidence": 70,
+      "targetDate": "2026-01-25T00:00:00Z"
+    }
+  },
+  {
+    "id": "btc-3",
+    "slug": "geopolitical-tensions-middle-east-oil-gold",
+    "title": "ភាពតានតឹងភូមិសាស្រ្តកើនឡើងនៅដើម្បីកើត — ឥទ្ធិពលដល់ប្រេង មាស និងទីផ្សារហានិភ័យ",
+    "excerpt": "ជម្លោះនៅដើម្បីកើតធ្វើឱ្យតម្លៃប្រេងកើន មាសឡើងជាទ្រព្យការពារ និងគ្រីបធ័រញ៉េរញ៉ៃ។",
+    "content": "Full article content here...",
+    "category": "crypto",
+    "tags": [
+      "geopolitical",
+      "oil",
+      "gold",
+      "safe-haven",
+      "bitcoin"
+    ],
+    "author": {
+      "name": "Alex Kim"
+    },
+    "publishedAt": "2026-01-20T14:00:00Z",
+    "readTime": "៧ នាទីអាន",
+    "image": "https://images.unsplash.com/photo-1526304640581-d334cdbbf45e?w=800&q=80",
+    "prediction": {
+      "asset": "BTC/USD",
+      "currentPrice": 52345,
+      "predictedPrice": 58000,
+      "direction": "bullish",
+      "confidence": 68,
+      "targetDate": "2026-01-22T00:00:00Z"
+    }
+  },
+  {
+    "id": "btc-4",
+    "slug": "global-crypto-regulation-mica-europe",
+    "title": "ការគ្រប់គ្រងគ្រីបធ័សកល (MiCA) នៅអឺរ៉ុប — ឥទ្ធិពលដល់ BTC និងគូប្រាក់",
+    "excerpt": "ច្បាប់ថ្មីរបស់អឺរ៉ុបចំពោះគ្រីបធ័ផ្តល់ឥទ្ធិពលដល់ទីផ្សារ និងអត្រាប្តូរប្រាក់ដុល្លារ។",
+    "content": "Full article content here...",
+    "category": "crypto",
+    "tags": [
+      "regulation",
+      "mica",
+      "europe",
+      "bitcoin",
+      "crypto"
+    ],
+    "author": {
+      "name": "Jennifer Walsh"
+    },
+    "publishedAt": "2026-01-20T10:00:00Z",
+    "readTime": "៥ នាទីអាន",
+    "image": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=800&q=80",
+    "prediction": {
+      "asset": "BTC/USD",
+      "currentPrice": 52345,
+      "predictedPrice": 51000,
+      "direction": "bearish",
+      "confidence": 55,
+      "targetDate": "2026-01-22T00:00:00Z"
+    }
+  },
+  {
+    "id": "gold-1",
+    "slug": "us-inflation-data-cpi-january-2026",
+    "title": "ទិន្នន័យអតិផរណាសហរដ្ឋអាមេរិកលើសក expectations — ឥទ្ធិពលដល់ដុល្លារ មាស និងធនធាន",
+    "excerpt": "CPI ខែមករាខ្ពស់ជាងការរំពឹងទុក ធ្វើឱ្យដុល្លាររឹងមាំ មាសឡើងជាការការពារ និងគ្រីបធ័ទទួលឥទ្ធិពល។",
+    "content": "Full article content here...",
+    "category": "forex",
+    "tags": [
+      "inflation",
+      "cpi",
+      "usd",
+      "gold",
+      "fed"
+    ],
+    "author": {
+      "name": "David Miller"
+    },
+    "publishedAt": "2026-01-21T07:00:00Z",
+    "readTime": "៥ នាទីអាន",
+    "featured": true,
+    "image": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&q=80",
+    "prediction": {
+      "asset": "XAU/USD",
+      "currentPrice": 2035.5,
+      "predictedPrice": 2100,
+      "direction": "bullish",
+      "confidence": 72,
+      "targetDate": "2026-01-28T00:00:00Z"
+    }
+  },
+  {
+    "id": "gold-2",
+    "slug": "china-stimulus-economy-commodities-yuan",
+    "title": "ចិនចេញវិធានការលូតលាស់សេដ្ឋកិច្ច — ឥទ្ធិពលដល់យ័ន វីជី មាស និងទីផ្សារហានិភ័យ",
+    "excerpt": "ការលូតលាស់វិធានការរបស់ចិនផ្តល់ឥទ្ធិពលដល់យ័ន វីជី មាស និងអារម្មណ៍ទីផ្សារសកល។",
+    "content": "Full article content here...",
+    "category": "forex",
+    "tags": [
+      "china",
+      "stimulus",
+      "yuan",
+      "commodities",
+      "gold"
+    ],
+    "author": {
+      "name": "Emma Williams"
+    },
+    "publishedAt": "2026-01-21T05:00:00Z",
+    "readTime": "៦ នាទីអាន",
+    "image": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80",
+    "prediction": {
+      "asset": "XAU/USD",
+      "currentPrice": 2035.5,
+      "predictedPrice": 2050,
+      "direction": "bullish",
+      "confidence": 65,
+      "targetDate": "2026-01-22T00:00:00Z"
+    }
+  },
+  {
+    "id": "gold-3",
+    "slug": "us-nfp-jobs-report-january-2026",
+    "title": "របាយការណ៍ការងារសហរដ្ឋអាមេរិក (NFP) ខ្លាំង — ដុល្លារ អត្រាការប្រាក់ និងមាស",
+    "excerpt": "NFP ខ្លាំងជាងការរំពឹងទុក ធ្វើឱ្យដុល្លារឡើង អត្រាការប្រាក់ Fed រក្សា និងមាសទទួលឥទ្ធិពលអវិជ្ជមាន។",
+    "content": "Full article content here...",
+    "category": "forex",
+    "tags": [
+      "nfp",
+      "jobs",
+      "usd",
+      "fed",
+      "gold"
+    ],
+    "author": {
+      "name": "James Cooper"
+    },
+    "publishedAt": "2026-01-20T12:00:00Z",
+    "readTime": "៥ នាទីអាន",
+    "image": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80",
+    "prediction": {
+      "asset": "XAU/USD",
+      "currentPrice": 2035.5,
+      "predictedPrice": 2020,
+      "direction": "bearish",
+      "confidence": 58,
+      "targetDate": "2026-01-22T00:00:00Z"
+    }
+  },
+  {
+    "id": "gold-4",
+    "slug": "dollar-strength-emerging-markets-currencies",
+    "title": "ភាពរឹងមាំរបស់ដុល្លារ និងគូប្រាក់ទីផ្សារកើនឡើង — USD/THB, USD/KHR, មាស",
+    "excerpt": "ដុល្លាររឹងមាំធ្វើឱ្យគូប្រាក់នៅអាស៊ីអាគ្នេយ៍ និងទ្រព្យស refuge ដូចជាមាស ទទួលឥទ្ធិពល។",
+    "content": "Full article content here...",
+    "category": "forex",
+    "tags": [
+      "usd",
+      "dxy",
+      "emerging-markets",
+      "gold",
+      "currencies"
+    ],
+    "author": {
+      "name": "Robert Brown"
+    },
+    "publishedAt": "2026-01-20T09:00:00Z",
+    "readTime": "៤ នាទីអាន",
+    "image": "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800&q=80",
+    "prediction": {
+      "asset": "XAU/USD",
+      "currentPrice": 2035.5,
+      "predictedPrice": 2045,
+      "direction": "bullish",
+      "confidence": 62,
+      "targetDate": "2026-01-22T00:00:00Z"
+    }
+  }
+]
