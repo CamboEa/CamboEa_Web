@@ -10,6 +10,8 @@ export interface CalendarEvent {
   impact: string;
   forecast: string;
   previous: string;
+  detail?: string;
+  actual?: string;
 }
 
 function formatEventTime(isoDate: string) {
@@ -290,7 +292,13 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
                           ឥទ្ធិពល
                         </th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                          លម្អិត
+                        </th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
                           ព្យាករណ៍
+                        </th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                          ជាក់ស្ដែង
                         </th>
                         <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
                           មុន
@@ -317,8 +325,14 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
                           <td className="py-3 px-4">
                             <ImpactBadge impact={event.impact} />
                           </td>
+                          <td className="py-3 px-4 text-gray-600 dark:text-gray-400 max-w-[200px]">
+                            {event.detail || '-'}
+                          </td>
                           <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
                             {event.forecast || '-'}
+                          </td>
+                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
+                            {event.actual || '-'}
                           </td>
                           <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
                             {event.previous || '-'}

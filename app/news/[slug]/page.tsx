@@ -8,6 +8,7 @@ import { getArticleBySlug, getRelatedArticles, getNewsArticles } from '@/lib/api
 import { NewsCard } from '@/components/features/news/NewsCard';
 import { sanitizeArticleContent, isHtmlContent } from '@/lib/sanitize-article-html';
 import PdfInlineViewer from '@/components/features/news/PdfInlineViewer';
+import { HiOutlineChartBar } from 'react-icons/hi';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -90,6 +91,17 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           <div>
             {/* Main Content */}
             <div className="max-w-3xl">
+              {/* Impact */}
+              {article.impact && (
+                <div className="mb-8 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20 rounded-r-lg p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <HiOutlineChartBar className="text-amber-600 dark:text-amber-400 text-xl" />
+                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm uppercase tracking-wide">ផលប៉ះពាល់</h3>
+                  </div>
+                  <p className="text-amber-900 dark:text-amber-200 text-base leading-relaxed">{article.impact}</p>
+                </div>
+              )}
+
               {/* Featured Image */}
               {article.image && (
                 <div className="relative h-64 sm:h-96 overflow-hidden mb-8">
