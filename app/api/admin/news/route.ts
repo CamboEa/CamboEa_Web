@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
+import { sendNewsToTelegram } from '@/lib/telegram';
 
 // GET /api/admin/news — list all articles
 export async function GET() {
@@ -110,6 +111,14 @@ export async function POST(request: NextRequest) {
       console.error(error);
       return NextResponse.json({ error: 'Failed to create article' }, { status: 500 });
     }
+
+    sendNewsToTelegram({
+      title,
+      excerpt,
+      slug,
+      image,
+      impact,
+    }).catch((err) => console.error('Telegram notification failed:', err));
 
     return NextResponse.json(data);
   } catch (e) {
