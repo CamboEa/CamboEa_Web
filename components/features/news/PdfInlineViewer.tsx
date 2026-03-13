@@ -52,7 +52,7 @@ export default function PdfInlineViewer({ url }: PdfInlineViewerProps) {
 
         container.appendChild(canvas);
 
-        await page.render({ canvasContext: ctx, viewport }).promise;
+        await page.render({ canvasContext: ctx, canvas, viewport }).promise;
       }
 
       setLoading(false);
