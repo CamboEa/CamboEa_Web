@@ -24,6 +24,17 @@ export async function generateMetadata({ params }: ArticlePageProps) {
   return {
     title: `${article.title} | CamboEA`,
     description: article.excerpt,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      ...(article.image && { images: [{ url: article.image }] }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.excerpt,
+      ...(article.image && { images: [article.image] }),
+    },
   };
 }
 

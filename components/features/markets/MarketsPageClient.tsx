@@ -31,7 +31,7 @@ const TABS: { id: ViewMode; label: string }[] = [
 export function MarketsPageClient() {
   const [view, setView] = useState<ViewMode>('overview');
   const [query, setQuery] = useState('');
-  const [selectedPair, setSelectedPair] = useState<{ label: string; tvSymbol: string } | null>(null);
+  const [selectedPair, setSelectedPair] = useState<{ label: string; tvSymbol: string } | null>({ label: 'XAU/USD', tvSymbol: 'TVC:GOLD' });
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -149,11 +149,6 @@ export function MarketsPageClient() {
           )}
         </div>
       )}
-      </div>
-
-      {/* Right sidebar: Session zone */}
-      <div className="lg:order-2 lg:sticky lg:top-6 lg:self-start">
-        <TradingSessionZone />
       </div>
     </div>
   );
