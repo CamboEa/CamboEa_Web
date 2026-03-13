@@ -20,6 +20,7 @@ const notoSansKhmer = Noto_Sans_Khmer({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://cambo-ea-web.vercel.app'),
   title: "CamboEA - ច្រកចូលទៅកាន់ទីផ្សារឆ្លាតវៃ",
   description: "ព័ត៌មានពិភពលោកដែលអាចផ្តល់ឥទ្ធិពលដល់គូប្រាក់ មាស និងគ្រីបធ័។ នៅចម្ងាយមុខជាមួយព្រឹត្តិការណ៍សកល ការវិភាគអ្នកជំនាញ និងសញ្ញាធ្វើដូច។",
   keywords: ["camboea", "forex", "crypto", "cryptocurrency", "bitcoin", "trading", "market analysis", "financial news", "cambodia", "ខ្មែរ"],

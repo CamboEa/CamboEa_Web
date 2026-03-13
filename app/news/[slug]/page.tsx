@@ -21,19 +21,25 @@ export async function generateMetadata({ params }: ArticlePageProps) {
     return { title: 'រកអត្ថបទមិនឃើញ | CamboEA' };
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cambo-ea-web.vercel.app';
+  const imageUrl = article.image
+    ? (article.image.startsWith('http') ? article.image : `${siteUrl}${article.image}`)
+    : undefined;
+
   return {
     title: `${article.title} | CamboEA`,
     description: article.excerpt,
     openGraph: {
       title: article.title,
       description: article.excerpt,
-      ...(article.image && { images: [{ url: article.image }] }),
+      type: 'article',
+      ...(imageUrl && { images: [{ url: imageUrl, width: 1200, height: 630, alt: article.title }] }),
     },
     twitter: {
       card: 'summary_large_image',
       title: article.title,
       description: article.excerpt,
-      ...(article.image && { images: [article.image] }),
+      ...(imageUrl && { images: [imageUrl] }),
     },
   };
 }
