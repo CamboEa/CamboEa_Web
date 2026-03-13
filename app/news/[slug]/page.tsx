@@ -7,7 +7,7 @@ import { notFound } from 'next/navigation';
 import { getArticleBySlug, getRelatedArticles, getNewsArticles } from '@/lib/api/news';
 import { NewsCard } from '@/components/features/news/NewsCard';
 import { sanitizeArticleContent, isHtmlContent } from '@/lib/sanitize-article-html';
-import { getDocxAsHtml } from '@/lib/docx-to-html';
+import PdfInlineViewer from '@/components/features/news/PdfInlineViewer';
 
 interface ArticlePageProps {
   params: Promise<{ slug: string }>;
@@ -42,23 +42,15 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     notFound();
   }
 
-  const relatedArticles = await getRelatedArticles(article, 3);
-
   const docUrl = article.docxPath
     ? (article.docxPath.startsWith('http')
         ? article.docxPath
         : `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}${article.docxPath}`)
     : '';
 
-  // Fetch DOCX and convert to HTML so we can display it on the page (no Office Online needed).
-  let docxHtml: string | null = null;
-  if (docUrl) {
-    try {
-      docxHtml = await getDocxAsHtml(docUrl);
-    } catch (e) {
-      console.error('Failed to load DOCX for article:', e);
-    }
-  }
+  const isPdf = docUrl.toLowerCase().endsWith('.pdf');
+
+  const relatedArticles = await getRelatedArticles(article, 3);
 
   const getCategoryColor = (category: string) => {
     return category === 'crypto' ? 'bg-orange-500' : 'bg-green-500';
@@ -75,44 +67,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      {/* Hero */}
-      <section className="bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 text-white py-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-sm mb-6">
-            <Link href="/news" className="text-gray-400 hover:text-white transition-colors">
-              ព័ត៌មាន
-            </Link>
-            <span className="text-gray-600">/</span>
-            <Link href="/markets" className="text-gray-400 hover:text-white transition-colors">
-              {article.category === 'crypto' ? 'គ្រីបធ័' : 'ប្តូរប្រាក់'}
-            </Link>
-            <span className="text-gray-600">/</span>
-            <span className="text-gray-300 truncate max-w-xs">{article.title}</span>
-          </div>
-
-          {/* Category & Date */}
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span className={`${getCategoryColor(article.category)} text-white text-xs font-semibold px-3 py-1 rounded-full`}>
-              {article.category === 'crypto' ? 'គ្រីបធ័' : 'ប្តូរប្រាក់'}
-            </span>
-            <span className="text-gray-400">{formatDate(article.publishedAt)}</span>
-            <span className="text-gray-600">•</span>
-            <span className="text-gray-400">{article.readTime}</span>
-          </div>
-
-          {/* Title */}
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-            {article.title}
-          </h1>
-
-          {/* Excerpt */}
-          <p className="text-xl text-gray-300 mb-8">
-            {article.excerpt}
-          </p>
-        </div>
-      </section>
-
       {/* Content */}
       <section className="py-12">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -121,52 +75,29 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             <div className="max-w-3xl">
               {/* Featured Image */}
               {article.image && (
-                <div className="relative h-64 sm:h-96 rounded-xl overflow-hidden mb-8">
+                <div className="relative h-64 sm:h-96 overflow-hidden mb-8">
                   <Image src={article.image} alt={article.title} fill className="object-cover" />
                 </div>
               )}
 
-              {/* DOCX content: display as HTML on the page (works even when file is not publicly embeddable) */}
+              {/* Document content: render PDF pages directly on the page */}
               {article.docxPath && (
-                <div className="mb-8 space-y-3">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    មើលឯកសារ Word ដើម
-                  </h2>
-                  {docxHtml ? (
-                    <div
-                      className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-6 prose prose-lg dark:prose-invert max-w-none prose-table:border prose-table:border-gray-200 dark:prose-table:border-gray-700 prose-img:rounded-lg text-gray-700 dark:text-gray-300"
-                      dangerouslySetInnerHTML={{ __html: docxHtml }}
-                    />
+                <div className="mb-8">
+                  {isPdf ? (
+                    <PdfInlineViewer url={docUrl || article.docxPath} />
                   ) : (
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      មិនអាចដាក់បង្ហាញឯកសារបាន។ សូមទាញយកហើយបើកជាមួយ Microsoft Word។
+                      មិនអាចដាក់បង្ហាញឯកសារបាន។ សូមទាញយកហើយបើកជាមួយកម្មវិធីដែលគាំទ្រ PDF/DOCX។
                     </p>
                   )}
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    <a
-                      href={docUrl || article.docxPath}
-                      className="underline hover:text-gray-700 dark:hover:text-gray-300"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      ទាញយកឯកសារ Word
-                    </a>
-                  </p>
                 </div>
               )}
 
               {/* Article Content */}
               <div className="prose prose-lg dark:prose-invert max-w-none prose-table:border prose-table:border-gray-200 dark:prose-table:border-gray-700 prose-img:rounded-lg">
                 {article.docxPath ? (
-                  // For DOCX-backed articles, we only show the embedded viewer above.
-                  // Keep a minimal fallback message or excerpt here.
-                  <div
-                    className="article-content text-gray-700 dark:text-gray-300"
-                  >
-                    <p className="leading-relaxed">
-                      មាតិកាអត្ថបទនេះត្រូវបានបង្ហាញនៅក្នុងឯកសារ Word ដើមខាងលើ។
-                    </p>
-                  </div>
+                  // For DOCX/PDF-backed articles, the main content is shown in the embedded document above.
+                  null
                 ) : isHtmlContent(article.content || '') ? (
                   <div
                     className="article-content text-gray-700 dark:text-gray-300"

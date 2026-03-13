@@ -28,6 +28,15 @@ export async function getDocxAsHtml(docUrl: string): Promise<string | null> {
     }
   }
   if (!buffer || buffer.length === 0) return null;
+  // DOCX files are ZIP archives; guard against non-DOCX/HTML error pages being passed to mammoth.
+  // ZIP files start with the magic bytes "PK\x03\x04" (0x50 0x4b 0x03 0x04).
+  if (buffer.length < 4 || buffer[0] !== 0x50 || buffer[1] !== 0x4b) {
+    console.error('getDocxAsHtml: downloaded file is not a valid DOCX/ZIP, skipping conversion.', {
+      url: docUrl,
+      firstBytes: Array.from(buffer.subarray(0, 4)),
+    });
+    return null;
+  }
   const mammoth = await import('mammoth');
   const result = await mammoth.convertToHtml({ buffer });
   const html = (result?.value ?? '').trim();

@@ -1,121 +1,152 @@
-// CamboEA - News Card Feature Component
-
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui';
 import { NewsArticle } from '@/types';
 
 interface NewsCardProps {
   article: NewsArticle;
-  variant?: 'default' | 'featured' | 'compact';
+  variant?: 'default' | 'featured' | 'compact' | 'headline' | 'small';
 }
 
 export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
-  const CATEGORY_LABELS: Record<string, string> = { crypto: 'គ្រីបធ័', forex: 'ប្តូរប្រាក់' };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('km-KH', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-  };
-
-  if (variant === 'compact') {
-    return (
-      <Link href={`/news/${article.slug}`}>
-        <Card variant="bordered" className="hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5">
-          <CardContent className="p-4">
-            <div className="flex gap-4">
-              {/* Thumbnail */}
-              <div className="shrink-0 w-20 h-20 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 rounded-lg overflow-hidden relative">
-                {article.image ? (
-                  <Image src={article.image} alt={article.title} fill className="object-cover" />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                  </div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-gray-900 dark:text-white text-sm line-clamp-2 mb-1">
-                  {article.title}
-                </h3>
-                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                  <span>{formatDate(article.publishedAt)}</span>
-                  <span>•</span>
-                  <span>{article.readTime}</span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </Link>
-    );
-  }
-
+  // Featured: text left + image right, side by side
   if (variant === 'featured') {
     return (
-      <Link href={`/news/${article.slug}`}>
-        <Card variant="bordered" className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-          {/* Image */}
-          <div className="relative h-64 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
-            {article.image ? (
-              <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-            ) : null}
-            <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent"></div>
-            <div className="absolute bottom-4 left-4 right-4">
-              <h2 className="text-2xl font-bold text-white line-clamp-2 group-hover:text-blue-300 transition-colors">
-                {article.title}
-              </h2>
-            </div>
-          </div>
-
-          <CardContent className="p-6">
-            <p className="text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
+      <Link href={`/news/${article.slug}`} className="group block">
+        <article className="grid md:grid-cols-5 gap-6 items-start">
+          <div className="md:col-span-3 py-1">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight mb-4 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+              {article.title}
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed line-clamp-4 mb-4">
               {article.excerpt}
             </p>
-
-            {/* Meta */}
-            <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-              <span>{formatDate(article.publishedAt)}</span>
-              <span>{article.readTime}</span>
+            <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
+              {article.impact && (
+                <p>ផលប៉ះពាល់: {article.impact}</p>
+              )}
+              <p className="text-gray-900 dark:text-white mt-10 font-bold">{new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+          <div className="md:col-span-2 relative aspect-4/3 overflow-hidden">
+            {article.image ? (
+              <Image 
+                src={article.image}
+                alt={article.title}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700" />
+            )}
+          </div>
+        </article>
       </Link>
     );
   }
 
-  // Default variant
-  return (
-    <Link href={`/news/${article.slug}`}>
-      <Card variant="bordered" className="h-full hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden group">
-        {/* Image */}
-        <div className="relative h-48 bg-linear-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 overflow-hidden">
-          {article.image ? (
-            <Image src={article.image} alt={article.title} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-          ) : null}
-          <div className="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition-colors"></div>
-          </div>
 
-        <CardContent className="p-5">
-          <h3 className="font-bold text-lg text-gray-900 dark:text-white line-clamp-2 mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+  if (variant === 'default') {
+    return (
+      <Link href={`/news/${article.slug}`} className="group block">
+        <article>
+          <div className="relative aspect-3/2 overflow-hidden mb-3">
+            {article.image ? (
+              <Image
+                src={article.image}
+                alt={article.title}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700" />
+            )}
+          </div>
+          <h3 className="font-bold text-base text-gray-900 dark:text-white leading-snug line-clamp-3 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
             {article.title}
           </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mb-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-2">
             {article.excerpt}
           </p>
+          <p className="text-xs text-gray-900 dark:text-white mt-2 font-semibold">
+            {new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </p>
+        </article>
+      </Link>
+    );
+  }
 
-          {/* Meta */}
-          <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <span>{formatDate(article.publishedAt)}</span>
-            <span>{article.readTime}</span>
+  // Small: smaller thumbnail + title, for the bottom row
+  if (variant === 'small') {
+    return (
+      <Link href={`/news/${article.slug}`} className="group block">
+        <article>
+          <div className="relative aspect-video overflow-hidden mb-2">
+            {article.image ? (
+              <Image
+                src={article.image}
+                alt={article.title}
+                fill
+                className="object-cover"
+              />
+            ) : (
+              <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700" />
+            )}
           </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
+          <h3 className="font-semibold text-sm text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+            {article.title}
+          </h3>
+          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
+            {article.excerpt}
+          </p>
+          <p className="text-xs text-gray-900 dark:text-white mt-1.5 font-semibold">
+            {new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </p>
+        </article>
+      </Link>
+    );
+  }
+
+  // Headline: text-only list item with bottom border
+  if (variant === 'headline') {
+    return (
+      <Link href={`/news/${article.slug}`} className="group block">
+        <article className="py-3 border-b border-gray-200 dark:border-gray-700/60 last:border-b-0">
+          <h3 className="font-semibold text-[15px] text-gray-900 dark:text-white leading-snug line-clamp-2 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+            {article.title}
+          </h3>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            {new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}
+          </p>
+        </article>
+      </Link>
+    );
+  }
+
+  // Compact: image left + text right
+  if (variant === 'compact') {
+    return (
+      <Link href={`/news/${article.slug}`} className="group block">
+        <article className="flex gap-4 items-start">
+          {article.image && (
+            <div className="shrink-0 w-24 h-24 overflow-hidden relative">
+              <Image
+                src={article.image}
+                alt={article.title}
+                fill
+                className="object-cover"
+              />
+            </div>
+          )}
+          <div className="flex-1 min-w-0 py-0.5">
+            <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-3 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+              {article.title}
+            </h3>
+          </div>
+        </article>
+      </Link>
+    );
+  }
+
+  return null;
 };
