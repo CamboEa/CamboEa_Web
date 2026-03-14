@@ -1,10 +1,22 @@
 import { EconomicCalendarClient, type CalendarEvent } from '@/app/calendar/EconomicCalendarClient';
 
-const API_URL = 'https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const API_URL = 'https://cambo-ea-scrap.vercel.app/api/events';
 
-export const metadata = {
-  title: 'ប្រតិទិនសេដ្ឋកិច្ច | CamboEA',
-  description: 'ព្រឹត្តិការណ៍សេដ្ឋកិច្ចសប្តាហ៍នេះ៖ ការចេញផ្សាយ ការថ្លែងយោបល់ និងទិន្នន័យសំខាន់។ រៀបចំធ្វើដូចជុំវិញព័ត៌មានឥទ្ធិពលខ្ពស់។',
+type ApiDetail = {
+  next_release?: string;
+  usual_effect?: string;
+  frequency?: string;
+} | null;
+
+type ApiEvent = {
+  title: string;
+  country: string;
+  date: string;
+  impact: string;
+  forecast: string;
+  previous: string;
+  actual: string;
+  detail: ApiDetail;
 };
 
 async function getCalendarEvents(): Promise<CalendarEvent[]> {
@@ -14,11 +26,26 @@ async function getCalendarEvents(): Promise<CalendarEvent[]> {
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    const events: ApiEvent[] = data?.events ?? [];
+    return events.map((e) => ({
+      title: e.title,
+      country: e.country,
+      date: e.date,
+      impact: e.impact,
+      forecast: e.forecast ?? '',
+      previous: e.previous ?? '',
+      actual: e.actual ?? '',
+      usualEffect: e.detail?.usual_effect ?? undefined,
+    }));
   } catch {
     return [];
   }
 }
+
+export const metadata = {
+  title: 'ប្រតិទិនសេដ្ឋកិច្ច | CamboEA',
+  description: 'ព្រឹត្តិការណ៍សេដ្ឋកិច្ចសប្តាហ៍នេះ៖ ការចេញផ្សាយ ការថ្លែងយោបល់ និងទិន្នន័យសំខាន់។ រៀបចំធ្វើដូចជុំវិញព័ត៌មានឥទ្ធិពលខ្ពស់។',
+};
 
 export default async function EconomicCalendarPage() {
   const events = await getCalendarEvents();

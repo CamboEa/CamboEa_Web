@@ -10,16 +10,13 @@ export interface CalendarEvent {
   impact: string;
   forecast: string;
   previous: string;
-  detail?: string;
   actual?: string;
+  usualEffect?: string;
 }
 
 function formatEventTime(isoDate: string) {
   const d = new Date(isoDate);
   return d.toLocaleString('km-KH', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -45,14 +42,41 @@ function getLocalDateKey(d: Date = new Date()) {
   return `${y}-${m}-${day}`;
 }
 
-const IMPACT_LABELS: Record<string, string> = { High: 'ខ្ពស់', Medium: 'មធ្យម', Low: 'ទាប' };
+const IMPACT_LABELS: Record<string, string> = {
+  High: 'ខ្ពស់',
+  Medium: 'មធ្យម',
+  Low: 'ទាប',
+  Holiday: 'ថ្ងៃសម្រាក',
+};
+
+const USUAL_EFFECT_KM: Record<string, string> = {
+  "'Actual' greater than 'Forecast' is good for currency;": "តម្លៃ 'ថ្មី' ខ្ពស់ជាង 'ព្យាករណ៍' គឺល្អចំពោះរូបិយប័ណ្ណ។",
+  "'Actual' greater than 'Forecast' is good for currency": "តម្លៃ 'ថ្មី' ខ្ពស់ជាង 'ព្យាករណ៍' គឺល្អចំពោះរូបិយប័ណ្ណ។",
+  "'Actual' less than 'Forecast' is good for currency;": "តម្លៃ 'ថ្មី' ទាបជាង 'ព្យាករណ៍' គឺល្អចំពោះរូបិយប័ណ្ណ។",
+  "'Actual' less than 'Forecast' is good for currency": "តម្លៃ 'ថ្មី' ទាបជាង 'ព្យាករណ៍' គឺល្អចំពោះរូបិយប័ណ្ណ។",
+  "More hawkish than expected is good for currency;": "គោលនយោបាយរឹងជាងរំពឹងគឺល្អចំពោះរូបិយប័ណ្ណ។",
+  "More hawkish than expected is good for currency": "គោលនយោបាយរឹងជាងរំពឹងគឺល្អចំពោះរូបិយប័ណ្ណ។",
+  "No consistent effect - there are both risk and growth implications;":
+    "ឥទ្ធិពលមិនថេរ - មានទាំងហានិភ័យ និងកំណើនសេដ្ឋកិច្ច។",
+  "No consistent effect - there are both risk and growth implications":
+    "ឥទ្ធិពលមិនថេរ - មានទាំងហានិភ័យ និងកំណើនសេដ្ឋកិច្ច។",
+};
+
+function usualEffectToKhmer(text: string | undefined): string {
+  if (!text || !text.trim()) return '';
+  const trimmed = text.trim();
+  return USUAL_EFFECT_KM[trimmed] ?? trimmed;
+}
+
 function ImpactBadge({ impact }: { impact: string }) {
   const style =
     impact === 'High'
       ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
       : impact === 'Medium'
         ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300'
-        : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
+        : impact === 'Holiday'
+          ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+          : 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300';
   return (
     <span className={`inline-flex px-2 py-0.5 rounded text-xs font-medium ${style}`}>
       {IMPACT_LABELS[impact] ?? impact}
@@ -71,10 +95,15 @@ function MiniCalendar({
   onSelectDate: (key: string) => void;
   datesWithEvents: Set<string>;
 }) {
+  const [hasMounted, setHasMounted] = useState(false);
   const [viewDate, setViewDate] = useState(() => {
     const [y, m] = selectedDate.split('-').map(Number);
     return new Date(y, m - 1, 1);
   });
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   useEffect(() => {
     const [y, m] = selectedDate.split('-').map(Number);
@@ -86,7 +115,9 @@ function MiniCalendar({
 
   const year = viewDate.getFullYear();
   const month = viewDate.getMonth();
-  const monthName = viewDate.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' });
+  const monthName = hasMounted
+    ? viewDate.toLocaleDateString('km-KH', { month: 'long', year: 'numeric' })
+    : `${year}-${String(month + 1).padStart(2, '0')}`;
   const firstDay = new Date(year, month, 1);
   const lastDay = new Date(year, month + 1, 0);
   const startPad = firstDay.getDay();
@@ -180,6 +211,7 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
   const [impactFilter, setImpactFilter] = useState<string>('all');
   const [countryFilter, setCountryFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
+  const [detailPopupEvent, setDetailPopupEvent] = useState<CalendarEvent | null>(null);
 
   const countries = useMemo(() => {
     const set = new Set(initialEvents.map((e) => e.country));
@@ -253,6 +285,7 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
                 <option value="High">ខ្ពស់</option>
                 <option value="Medium">មធ្យម</option>
                 <option value="Low">ទាប</option>
+                <option value="Holiday">ថ្ងៃសម្រាក</option>
               </select>
               <select
                 value={countryFilter}
@@ -279,28 +312,28 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
             ) : (
               <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs">
                     <thead>
                       <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                        <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
                           ម៉ោង
                         </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                        <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
                           ព្រឹត្តិការណ៍
                         </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                        <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
                           ឥទ្ធិពល
                         </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                        <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300 hidden sm:table-cell">
                           លម្អិត
                         </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                        <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
                           ព្យាករណ៍
                         </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
-                          ជាក់ស្ដែង
+                        <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
+                          ថ្មី
                         </th>
-                        <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">
+                        <th className="text-left py-2 px-2 font-semibold text-gray-700 dark:text-gray-300">
                           មុន
                         </th>
                       </tr>
@@ -311,30 +344,39 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
                           key={`${event.date}-${event.title}-${i}`}
                           className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/30"
                         >
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                          <td className="py-2 px-2 text-gray-600 dark:text-gray-400 whitespace-nowrap">
                             {formatEventTime(event.date)}
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="py-2 px-2">
                             <span className="font-medium text-gray-900 dark:text-white">
                               {event.title}
                             </span>
-                            <span className="ml-2 text-gray-500 dark:text-gray-400">
+                            <span className="ml-1 text-gray-500 dark:text-gray-400">
                               ({event.country})
                             </span>
                           </td>
-                          <td className="py-3 px-4">
+                          <td className="py-2 px-2">
                             <ImpactBadge impact={event.impact} />
                           </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-400 max-w-[200px]">
-                            {event.detail || '-'}
+                          <td className="py-2 px-2 hidden sm:table-cell">
+                            <button
+                              type="button"
+                              onClick={() => setDetailPopupEvent(event)}
+                              className="inline-flex items-center justify-center w-7 h-7 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600 hover:text-blue-600 dark:hover:text-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              aria-label="លម្អិត"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                              </svg>
+                            </button>
                           </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
+                          <td className="py-2 px-2 text-gray-600 dark:text-gray-400">
                             {event.forecast || '-'}
                           </td>
-                          <td className="py-3 px-4 font-medium text-gray-900 dark:text-white">
+                          <td className="py-2 px-2 font-medium text-gray-900 dark:text-white">
                             {event.actual || '-'}
                           </td>
-                          <td className="py-3 px-4 text-gray-600 dark:text-gray-400">
+                          <td className="py-2 px-2 text-gray-600 dark:text-gray-400">
                             {event.previous || '-'}
                           </td>
                         </tr>
@@ -347,10 +389,39 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
           </div>
 
           <aside className="lg:w-72 shrink-0 order-3 lg:sticky lg:top-6 lg:self-start">
-            <TradingSessionZone />
+            <TradingSessionZone selectedDate={selectedDate} />
           </aside>
         </div>
       </section>
+
+      {detailPopupEvent && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+          onClick={() => setDetailPopupEvent(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="detail-popup-title"
+        >
+          <div
+            className="bg-white dark:bg-gray-800 rounded-xl shadow-xl max-w-md w-full p-5 border border-gray-200 dark:border-gray-700"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="detail-popup-title" className="text-base font-semibold text-gray-900 dark:text-white mb-2">
+              {detailPopupEvent.title} ({detailPopupEvent.country})
+            </h3>
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+              {usualEffectToKhmer(detailPopupEvent.usualEffect) || 'គ្មានព័ត៌មានឥទ្ធិពលធម្មតា។'}
+            </p>
+            <button
+              type="button"
+              onClick={() => setDetailPopupEvent(null)}
+              className="mt-4 w-full py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              បិទ
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

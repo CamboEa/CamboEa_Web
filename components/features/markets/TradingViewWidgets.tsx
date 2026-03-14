@@ -125,8 +125,26 @@ export const TradingViewTicker = memo(function TradingViewTicker() {
     script.async = true;
     script.innerHTML = JSON.stringify({
       symbols: [
+        // Forex majors
+        { proName: 'FX:EURUSD', title: 'EUR/USD' },
+        { proName: 'FX:GBPUSD', title: 'GBP/USD' },
+        { proName: 'FX:USDJPY', title: 'USD/JPY' },
+        { proName: 'FX:AUDUSD', title: 'AUD/USD' },
+        { proName: 'FX:USDCAD', title: 'USD/CAD' },
+        { proName: 'FX:USDCHF', title: 'USD/CHF' },
+        { proName: 'FX:NZDUSD', title: 'NZD/USD' },
+        { proName: 'FX:EURJPY', title: 'EUR/JPY' },
+        { proName: 'FX:GBPJPY', title: 'GBP/JPY' },
+        // Metals
         { proName: 'TVC:GOLD', title: 'Gold (XAU/USD)' },
+        { proName: 'TVC:SILVER', title: 'Silver (XAG/USD)' },
+        { proName: 'TVC:PLATINUM', title: 'Platinum (XPT/USD)' },
+        // Crypto
         { proName: 'BITSTAMP:BTCUSD', title: 'Bitcoin (BTC/USD)' },
+        { proName: 'BITSTAMP:ETHUSD', title: 'Ethereum (ETH/USD)' },
+        { proName: 'COINBASE:SOLUSD', title: 'Solana (SOL/USD)' },
+        { proName: 'BITSTAMP:XRPUSD', title: 'XRP/USD' },
+        { proName: 'BINANCE:BNBUSD', title: 'BNB/USD' },
       ],
       showSymbolLogo: true,
       isTransparent: false,

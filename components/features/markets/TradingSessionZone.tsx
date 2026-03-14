@@ -49,9 +49,17 @@ function formatIctTime(openUtc: number, closeUtc: number): string {
 // Asia/Phnom_Penh is Cambodia (ICT = UTC+7)
 const CAMBODIA_TZ = 'Asia/Phnom_Penh';
 
-export function TradingSessionZone() {
+function isWeekend(dateKey: string): boolean {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  const day = new Date(y, m - 1, d).getDay(); // 0 = Sunday, 6 = Saturday
+  return day === 0 || day === 6;
+}
+
+export function TradingSessionZone({ selectedDate }: { selectedDate?: string }) {
   const [utcHour, setUtcHour] = useState(0);
   const [ictNow, setIctNow] = useState('--:--:--');
+
+  const showMarketClosed = selectedDate != null && selectedDate.length >= 10 && isWeekend(selectedDate);
 
   useEffect(() => {
     const update = () => {
@@ -77,6 +85,16 @@ export function TradingSessionZone() {
           កម្ពុជា {ictNow} (ICT)
         </p>
       </div>
+      {showMarketClosed ? (
+        <div className="px-4 py-6 text-center">
+          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+            ទីផ្សារបិទ
+          </p>
+          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+            (ថ្ងៃសៅរ៍ និងថ្ងៃអាទិត្យ)
+          </p>
+        </div>
+      ) : (
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
         {SESSIONS.map((session) => {
           const open = isSessionOpen(session, utcHour);
@@ -111,6 +129,7 @@ export function TradingSessionZone() {
           );
         })}
       </ul>
+      )}
     </aside>
   );
 }
