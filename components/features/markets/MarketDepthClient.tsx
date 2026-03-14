@@ -64,7 +64,7 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
   const fetchDepth = useCallback(async () => {
     try {
       setError(null);
-      const res = await fetch(`/api/market-depth?symbol=${encodeURIComponent(symbol)}&limit=20`);
+      const res = await fetch(`/api/m?symbol=${encodeURIComponent(symbol)}&limit=20`);
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error || j.detail || `HTTP ${res.status}`);

@@ -58,7 +58,7 @@ export function RetailerDataClient() {
     async function fetchData() {
       try {
         setError(null);
-        const res = await fetch('/api/retailer');
+        const res = await fetch('/api/r', { referrerPolicy: 'no-referrer' });
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
           throw new Error(j.error || `HTTP ${res.status}`);

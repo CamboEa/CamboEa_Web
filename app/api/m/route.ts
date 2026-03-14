@@ -1,10 +1,9 @@
-// CamboEA - Market depth proxy. Tries Kraken first (globally reachable), then Binance.
+// CamboEA - Data proxy (opaque path). Kraken first, then Binance.
 
 import { NextRequest, NextResponse } from 'next/server';
 
 const FETCH_TIMEOUT_MS = 6000;
 
-// Kraken pair names (USD pairs; Kraken is more reachable than Binance in many regions)
 const SYMBOL_TO_KRAKEN_PAIR: Record<string, string> = {
   BTCUSDT: 'XXBTZUSD',
   ETHUSDT: 'XETHZUSD',
@@ -25,7 +24,6 @@ function fetchWithTimeout(url: string, timeoutMs: number): Promise<Response> {
   return fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeoutId));
 }
 
-/** Kraken: /0/public/Depth and /0/public/Ticker. Result format differs from Binance. */
 async function tryKraken(symbol: string, limit: number): Promise<NextResponse | null> {
   const pair = SYMBOL_TO_KRAKEN_PAIR[symbol] ?? symbol.replace('USDT', 'USD').replace('BTC', 'XBT');
   const krakenPair = pair.includes('XBT') || pair.endsWith('USD') ? pair : `${pair}USD`;
@@ -55,7 +53,7 @@ async function tryKraken(symbol: string, limit: number): Promise<NextResponse | 
   const lastPrice = ticker.c?.[0] ?? '';
   const bidPrice = ticker.b?.[0] ?? '';
   const askPrice = ticker.a?.[0] ?? '';
-  const priceChangePercent = ''; // Kraken 24h % not in same shape; optional in UI
+  const priceChangePercent = '';
   return NextResponse.json({
     symbol,
     lastPrice,
@@ -83,15 +81,13 @@ export async function GET(request: NextRequest) {
   const symbol = request.nextUrl.searchParams.get('symbol') || 'BTCUSDT';
   const limit = Math.min(50, Math.max(5, parseInt(request.nextUrl.searchParams.get('limit') || '20', 10) || 20));
 
-  // 1. Try Kraken first (usually reachable where Binance is blocked)
   try {
     const krakenRes = await tryKraken(symbol, limit);
     if (krakenRes) return krakenRes;
   } catch {
-    // fall through to Binance
+    //
   }
 
-  // 2. Fallback: Binance
   let lastError: Error | null = null;
   for (const host of BINANCE_HOSTS) {
     try {
@@ -119,7 +115,7 @@ export async function GET(request: NextRequest) {
 
   const isAbort = lastError instanceof Error && lastError.name === 'AbortError';
   const message = isAbort
-    ? 'Market data request timed out. Try again later.'
-    : (lastError instanceof Error ? lastError.message : 'Failed to fetch market depth');
+    ? 'Request timed out. Try again later.'
+    : (lastError instanceof Error ? lastError.message : 'Failed to fetch data');
   return NextResponse.json({ error: message }, { status: isAbort ? 504 : 500 });
 }
