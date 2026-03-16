@@ -14,9 +14,12 @@ export interface CalendarEvent {
   usualEffect?: string;
 }
 
+const CAMBODIA_TZ = 'Asia/Phnom_Penh';
+
 function formatEventTime(isoDate: string) {
   const d = new Date(isoDate);
   return d.toLocaleString('km-KH', {
+    timeZone: CAMBODIA_TZ,
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
@@ -25,21 +28,24 @@ function formatEventTime(isoDate: string) {
 
 function formatEventDateOnly(isoDate: string) {
   return new Date(isoDate).toLocaleDateString('km-KH', {
+    timeZone: CAMBODIA_TZ,
     weekday: 'short',
     month: 'short',
     day: 'numeric',
   });
 }
 
-function getEventDateKey(isoDate: string) {
-  return isoDate.slice(0, 10);
+/** Normalize API date (e.g. "2026-03-16T04:30:00+07:00") to YYYY-MM-DD for grouping. */
+function getEventDateKey(isoDate: string): string {
+  if (!isoDate || typeof isoDate !== 'string') return '';
+  const d = new Date(isoDate);
+  if (Number.isNaN(d.getTime())) return isoDate.slice(0, 10);
+  return d.toLocaleDateString('en-CA', { timeZone: CAMBODIA_TZ });
 }
 
+/** Today's date in Cambodia (ICT) as YYYY-MM-DD. */
 function getLocalDateKey(d: Date = new Date()) {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+  return d.toLocaleDateString('en-CA', { timeZone: CAMBODIA_TZ });
 }
 
 const IMPACT_LABELS: Record<string, string> = {
@@ -201,11 +207,7 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
     return set;
   }, [initialEvents]);
 
-  const defaultSelectedDate = useMemo(() => {
-    if (datesWithEvents.has(todayKey)) return todayKey;
-    const sorted = Array.from(datesWithEvents).sort();
-    return sorted[0] ?? todayKey;
-  }, [datesWithEvents, todayKey]);
+  const defaultSelectedDate = todayKey;
 
   const [selectedDate, setSelectedDate] = useState<string>(defaultSelectedDate);
   const [impactFilter, setImpactFilter] = useState<string>('all');
@@ -301,7 +303,7 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
               </select>
             </div>
 
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3" suppressHydrationWarning>
               {selectedDateLabel}
             </h2>
 
@@ -344,7 +346,7 @@ export function EconomicCalendarClient({ initialEvents }: { initialEvents: Calen
                           key={`${event.date}-${event.title}-${i}`}
                           className="border-b border-gray-100 dark:border-gray-700 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/30"
                         >
-                          <td className="py-2 px-2 text-gray-600 dark:text-gray-400 whitespace-nowrap">
+                          <td className="py-2 px-2 text-gray-600 dark:text-gray-400 whitespace-nowrap" suppressHydrationWarning>
                             {formatEventTime(event.date)}
                           </td>
                           <td className="py-2 px-2">

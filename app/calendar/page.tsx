@@ -22,11 +22,13 @@ type ApiEvent = {
 async function getCalendarEvents(): Promise<CalendarEvent[]> {
   try {
     const res = await fetch(API_URL, {
-      next: { revalidate: 3600 },
+      cache: 'no-store',
+      next: { revalidate: 0 },
     });
     if (!res.ok) return [];
     const data = await res.json();
-    const events: ApiEvent[] = data?.events ?? [];
+    const rawEvents = data?.events ?? (Array.isArray(data) ? data : []);
+    const events: ApiEvent[] = rawEvents;
     return events.map((e) => ({
       title: e.title,
       country: e.country,
