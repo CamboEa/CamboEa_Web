@@ -13,7 +13,15 @@ const SYMBOL_TO_KRAKEN_PAIR: Record<string, string> = {
   DOGEUSDT: 'XDGUSD',
   ADAUSDT: 'ADAUSD',
   AVAXUSDT: 'AVAXUSD',
+  // Forex (Kraken only)
+  EURUSD: 'ZEURZUSD',
+  GBPUSD: 'ZGBPZUSD',
+  USDJPY: 'ZUSDZJPY',
+  // Metals – XAUT = Tether Gold (Kraken)
+  XAUUSD: 'XAUTUSD',
+  XAUTUSD: 'XAUTUSD',
 };
+const KRAKEN_ONLY_SYMBOLS = new Set(['EURUSD', 'GBPUSD', 'USDJPY', 'XAUUSD', 'XAUTUSD']);
 
 const BINANCE_HOSTS = ['https://api.binance.com', 'https://api1.binance.com', 'https://api2.binance.com'];
 const BINANCE_PATH = '/api/v3';
@@ -86,6 +94,13 @@ export async function GET(request: NextRequest) {
     if (krakenRes) return krakenRes;
   } catch {
     //
+  }
+
+  if (KRAKEN_ONLY_SYMBOLS.has(symbol)) {
+    return NextResponse.json(
+      { error: 'Forex/metals data temporarily unavailable.' },
+      { status: 503 }
+    );
   }
 
   let lastError: Error | null = null;

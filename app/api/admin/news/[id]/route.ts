@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
+import { requireAdmin } from '@/lib/admin-auth';
 
 function slugify(text: string): string {
   return text
@@ -11,12 +12,17 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, '');
 }
 
-// GET /api/admin/news/[id] — get one article
+// GET /api/admin/news/[id] — get one article (admin only)
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
     const { data, error } = await supabase
@@ -64,12 +70,17 @@ export async function GET(
   }
 }
 
-// PUT /api/admin/news/[id] — update article
+// PUT /api/admin/news/[id] — update article (admin only)
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json().catch(() => ({}));
     const supabase = getSupabaseAdminClient();
@@ -155,12 +166,17 @@ export async function PUT(
   }
 }
 
-// DELETE /api/admin/news/[id] — delete article
+// DELETE /api/admin/news/[id] — delete article (admin only)
 export async function DELETE(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
 

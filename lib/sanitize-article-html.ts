@@ -14,7 +14,7 @@ const allowedAttributes: Record<string, string[]> = {
   img: ['src', 'alt', 'width', 'height', 'title'],
   td: ['colspan', 'rowspan'],
   th: ['colspan', 'rowspan'],
-  '*': ['class', 'style'],
+  '*': ['class'],
 };
 
 export function sanitizeArticleContent(html: string): string {
@@ -22,7 +22,8 @@ export function sanitizeArticleContent(html: string): string {
   return sanitizeHtml(html, {
     allowedTags,
     allowedAttributes,
-    allowedSchemes: ['http', 'https', 'mailto', 'data'],
+    allowedSchemes: ['http', 'https', 'mailto'],
+    // Allow data: only for images (e.g., embedded base64 thumbnails)
     allowedSchemesByTag: { img: ['http', 'https', 'data'] },
   });
 }

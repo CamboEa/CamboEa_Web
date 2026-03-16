@@ -1,9 +1,33 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import { TradingViewMarketOverview, TradingViewWidget } from './TradingViewWidgets';
-import { RetailerDataClient } from './RetailerDataClient';
-import { MarketDepthClient } from './MarketDepthClient';
+import React, { useState, useMemo, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+import { TradingViewWidget } from './TradingViewWidgets';
+
+// Lazy-load heavy view components for better initial load and smaller main bundle
+const MarketDepthClient = dynamic(
+  () => import('./MarketDepthClient').then((m) => ({ default: () => <m.MarketDepthClient embedded /> })),
+  { ssr: false, loading: () => <ViewSkeleton text="ជម្រៅទីផ្សារ" /> }
+);
+
+const RetailerDataClient = dynamic(() => import('./RetailerDataClient').then((m) => ({ default: m.RetailerDataClient })), {
+  ssr: false,
+  loading: () => <ViewSkeleton text="ទិន្នន័យអ្នកលក់រាយ" />,
+});
+
+const MarketSummaryClient = dynamic(() => import('./MarketSummaryClient').then((m) => ({ default: m.MarketSummaryClient })), {
+  ssr: false,
+  loading: () => <ViewSkeleton text="ទិដ្ឋភាពសង្ខេប" />,
+});
+
+function ViewSkeleton({ text }: { text: string }) {
+  return (
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-10 flex flex-col items-center justify-center min-h-[320px]">
+      <div className="w-9 h-9 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3" />
+      <p className="text-sm text-gray-500 dark:text-gray-400">កំពុងផ្ទុក {text}...</p>
+    </div>
+  );
+}
 
 type ViewMode = 'overview' | 'graphic' | 'retailer' | 'depth';
 
@@ -49,11 +73,16 @@ export function MarketsPageClient({ initialView = 'retailer' }: MarketsPageClien
     );
   }, [query]);
 
-  const handleDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleDropdownChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value as 'overview' | 'graphic' | 'depth' | 'retailer';
     setDropdownValue(value);
     setView(value);
-  };
+  }, []);
+
+  const setViewTo = useCallback((v: ViewMode) => {
+    setDropdownValue(v);
+    setView(v);
+  }, []);
 
   return (
     <div className="flex flex-col gap-0">
@@ -65,10 +94,7 @@ export function MarketsPageClient({ initialView = 'retailer' }: MarketsPageClien
             <button
               key={opt.value}
               type="button"
-              onClick={() => {
-                setDropdownValue(opt.value);
-                setView(opt.value);
-              }}
+              onClick={() => setViewTo(opt.value)}
               className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 dropdownValue === opt.value
                   ? 'bg-blue-600 text-white shadow-md shadow-blue-600/25 dark:shadow-blue-500/20'
@@ -85,14 +111,14 @@ export function MarketsPageClient({ initialView = 'retailer' }: MarketsPageClien
         {/* Content area */}
         <div className="p-4 sm:p-6 min-h-[360px] ">
           {view === 'overview' && (
-            <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-              <TradingViewMarketOverview height={420} />
+            <div className="rounded-xl overflow-hidden">
+              <MarketSummaryClient />
             </div>
           )}
 
           {view === 'depth' && (
             <div className="rounded-xl overflow-hidden">
-              <MarketDepthClient embedded />
+              <MarketDepthClient />
             </div>
           )}
 

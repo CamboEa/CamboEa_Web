@@ -2,10 +2,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { sendNewsToTelegram } from '@/lib/telegram';
+import { requireAdmin } from '@/lib/admin-auth';
 
-// GET /api/admin/news — list all articles
-export async function GET() {
+// GET /api/admin/news — list all articles (admin only)
+export async function GET(_request: NextRequest) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const supabase = getSupabaseAdminClient();
     const { data, error } = await supabase
       .from('news')
@@ -56,9 +62,14 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, '');
 }
 
-// POST /api/admin/news — create article
+// POST /api/admin/news — create article (admin only)
 export async function POST(request: NextRequest) {
   try {
+    const admin = await requireAdmin();
+    if (!admin) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const body = await request.json().catch(() => ({}));
     const supabase = getSupabaseAdminClient();
 

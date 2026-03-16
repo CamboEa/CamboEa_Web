@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, memo } from 'react';
 
 export type RetailerRow = {
   pair: string;
@@ -30,23 +30,74 @@ function SignalIcon({ signal }: { signal: 'buy' | 'sell' | 'neutral' }) {
       </span>
     );
   }
+  const emerald = 'flex items-center justify-center w-6 h-6 rounded bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400';
   if (signal === 'sell') {
     return (
       <span className={rose} aria-hidden>
-        <svg className={icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-3 3m3 5l-3-3m-3 2V7l3 3" />
+        <svg className={icon} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
       </span>
     );
   }
   return (
-    <span className={rose} aria-hidden>
-      <svg className={icon} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 17h8m0 0v-8m0 8l-3-3m3 3l-3 3m-3-2v8l3-3" />
+    <span className={emerald} aria-hidden>
+      <svg className={icon} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
       </svg>
     </span>
   );
 }
+
+const SIGNAL_HINT: Record<string, string> = {
+  buy: 'រកឱកាសទិញ',
+  sell: 'រកឱកាសលក់',
+  neutral: 'អព្យាក្រឹត',
+};
+
+const RetailerRowItem = memo(function RetailerRowItem({ row }: { row: RetailerRow }) {
+  const leftPct = Math.max(0, Math.min(100, row.avgLeft));
+  const rightPct = Math.max(0, Math.min(100, row.avgRight));
+  const total = leftPct + rightPct;
+  const leftWidth = total > 0 ? (leftPct / total) * 100 : 50;
+  const displaySignal: 'buy' | 'sell' | 'neutral' =
+    leftPct > rightPct ? 'buy' : rightPct > leftPct ? 'sell' : 'neutral';
+  return (
+    <li className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700/30">
+      <span className="shrink-0 w-14 sm:w-16 text-xs font-bold text-gray-900 dark:text-white tabular-nums">
+        {formatPair(row.pair)}
+      </span>
+      <div className="flex-1 min-w-0 flex h-6 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700">
+        <div
+          className="flex items-center justify-center h-full bg-emerald-500 dark:bg-emerald-600 text-white text-[10px] font-semibold tabular-nums"
+          style={{ width: `${leftWidth}%`, minWidth: leftPct >= 0.1 ? '1.5rem' : 0 }}
+        >
+          {leftPct >= 5 ? `${leftPct.toFixed(1)}%` : ''}
+        </div>
+        <div
+          className="flex items-center justify-center h-full bg-rose-400 dark:bg-rose-500 text-white text-[10px] font-semibold tabular-nums"
+          style={{ width: `${100 - leftWidth}%`, minWidth: rightPct >= 0.1 ? '1.5rem' : 0 }}
+        >
+          {rightPct >= 5 ? `${rightPct.toFixed(1)}%` : ''}
+        </div>
+      </div>
+      <span className="shrink-0 flex items-center gap-1.5">
+        <SignalIcon signal={displaySignal} />
+        <span
+          className={`text-[10px] font-medium ${
+            displaySignal === 'buy'
+              ? 'text-emerald-600 dark:text-emerald-400'
+              : displaySignal === 'sell'
+                ? 'text-rose-600 dark:text-rose-400'
+                : 'text-gray-500 dark:text-gray-400'
+          }`}
+        >
+          {SIGNAL_HINT[displaySignal] ?? displaySignal}
+        </span>
+      </span>
+    </li>
+  );
+});
 
 export function RetailerDataClient() {
   const [data, setData] = useState<RetailerRow[]>([]);
@@ -105,39 +156,9 @@ export function RetailerDataClient() {
         </h3>
       </div>
       <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-        {data.map((row) => {
-          const leftPct = Math.max(0, Math.min(100, row.avgLeft));
-          const rightPct = Math.max(0, Math.min(100, row.avgRight));
-          const total = leftPct + rightPct;
-          const leftWidth = total > 0 ? (leftPct / total) * 100 : 50;
-          return (
-            <li
-              key={row.pair}
-              className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-700/30"
-            >
-              <span className="shrink-0 w-14 sm:w-16 text-xs font-bold text-gray-900 dark:text-white tabular-nums">
-                {formatPair(row.pair)}
-              </span>
-              <div className="flex-1 min-w-0 flex h-6 rounded-md overflow-hidden bg-gray-100 dark:bg-gray-700">
-                <div
-                  className="flex items-center justify-center h-full bg-emerald-500 dark:bg-emerald-600 text-white text-[10px] font-semibold tabular-nums"
-                  style={{ width: `${leftWidth}%`, minWidth: leftPct >= 0.1 ? '1.5rem' : 0 }}
-                >
-                  {leftPct >= 5 ? `${leftPct.toFixed(1)}%` : ''}
-                </div>
-                <div
-                  className="flex items-center justify-center h-full bg-rose-400 dark:bg-rose-500 text-white text-[10px] font-semibold tabular-nums"
-                  style={{ width: `${100 - leftWidth}%`, minWidth: rightPct >= 0.1 ? '1.5rem' : 0 }}
-                >
-                  {rightPct >= 5 ? `${rightPct.toFixed(1)}%` : ''}
-                </div>
-              </div>
-              <span className="shrink-0">
-                <SignalIcon signal={row.signal} />
-              </span>
-            </li>
-          );
-        })}
+        {data.map((row) => (
+          <RetailerRowItem key={row.pair} row={row} />
+        ))}
       </ul>
     </div>
   );
