@@ -3,6 +3,7 @@ import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Noto_Sans_Khmer } from "next/font/google";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import { ClientShell } from "@/components/layout/ClientShell";
 
 const geistSans = Geist({

@@ -1,6 +1,7 @@
 // CamboEA - Markets API: Frankfurter (forex) + CoinGecko (crypto) + MetalpriceAPI (metals)
 
 import { NextResponse } from 'next/server';
+import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getMetalpriceApiKey } from '@/config/env';
 
 export type Bias = 'bullish' | 'bearish' | 'neutral';
@@ -121,13 +122,67 @@ async function fetchMetals(): Promise<MarketsPriceRow[]> {
   return rows.length > 0 ? rows : FALLBACK_METALS;
 }
 
+interface MarketBiasOverride {
+  symbol: string;
+  category: 'forex' | 'metals';
+  bias: Bias;
+}
+
+async function applyBiasOverrides(
+  forex: MarketsPriceRow[],
+  metals: MarketsPriceRow[]
+): Promise<{ forex: MarketsPriceRow[]; metals: MarketsPriceRow[] }> {
+  try {
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from('markets_bias')
+      .select('symbol, category, bias')
+      .in('category', ['forex', 'metals']);
+
+    if (error || !data) {
+      if (error) console.error('Failed to load markets_bias overrides:', error);
+      return { forex, metals };
+    }
+
+    const overrides: MarketBiasOverride[] = (data ?? []).map((row: any) => ({
+      symbol: String(row.symbol),
+      category: row.category === 'metals' ? 'metals' : 'forex',
+      bias:
+        row.bias === 'bullish' || row.bias === 'bearish' || row.bias === 'neutral'
+          ? (row.bias as Bias)
+          : 'neutral',
+    }));
+
+    const bySymbol = new Map<string, Bias>();
+    for (const o of overrides) {
+      bySymbol.set(o.symbol, o.bias);
+    }
+
+    const apply = (rows: MarketsPriceRow[]): MarketsPriceRow[] =>
+      rows.map((row) => {
+        const override = bySymbol.get(row.symbol);
+        return override ? { ...row, bias: override } : row;
+      });
+
+    return {
+      forex: apply(forex),
+      metals: apply(metals),
+    };
+  } catch (e) {
+    console.error('Error applying markets_bias overrides:', e);
+    return { forex, metals };
+  }
+}
+
 export async function GET() {
   try {
-    const [forex, crypto, metals] = await Promise.all([
+    const [rawForex, crypto, rawMetals] = await Promise.all([
       fetchForex(),
       fetchCrypto(),
       fetchMetals(),
     ]);
+
+    const { forex, metals } = await applyBiasOverrides(rawForex, rawMetals);
 
     if (forex.length === 0 && crypto.length === 0) {
       return NextResponse.json(
