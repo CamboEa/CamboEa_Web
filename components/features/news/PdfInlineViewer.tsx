@@ -36,13 +36,15 @@ export default function PdfInlineViewer({ url }: PdfInlineViewerProps) {
         const containerWidth = container.clientWidth || 800;
 
         const unscaledViewport = page.getViewport({ scale: 1 });
-        const scale = containerWidth / unscaledViewport.width;
+        // Render slightly larger than the container width so,
+        // after scaling down to 100% width in CSS, the page appears taller.
+        const scale = (containerWidth * 1.2) / unscaledViewport.width;
         const viewport = page.getViewport({ scale });
 
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width * window.devicePixelRatio;
         canvas.height = viewport.height * window.devicePixelRatio;
-        canvas.style.width = `${viewport.width}px`;
+        canvas.style.width = '100%';
         canvas.style.height = `${viewport.height}px`;
         canvas.className = 'mx-auto';
 
@@ -85,7 +87,7 @@ export default function PdfInlineViewer({ url }: PdfInlineViewerProps) {
       )}
       <div
         ref={containerRef}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 w-full"
       />
       {!loading && totalPages > 0 && (
         <p className="text-center text-xs text-gray-400 dark:text-gray-500 mt-4">

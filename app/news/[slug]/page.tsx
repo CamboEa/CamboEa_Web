@@ -1,7 +1,3 @@
-// CamboEA - Individual News Article Page
-
-import React from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { getArticleBySlug, getRelatedArticles, getNewsArticles } from '@/lib/api/news';
@@ -109,16 +105,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 </div>
               )}
 
-              {/* Document content: render PDF pages directly on the page */}
+              {/* Document content: render PDF pages full-width on the screen */}
               {article.docxPath && (
-                <div className="mb-8">
-                  {isPdf ? (
-                    <PdfInlineViewer url={docUrl || article.docxPath} />
-                  ) : (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      មិនអាចដាក់បង្ហាញឯកសារបាន។ សូមទាញយកហើយបើកជាមួយកម្មវិធីដែលគាំទ្រ PDF/DOCX។
-                    </p>
-                  )}
+                <div className="mb-8 -mx-[calc(50vw-50%)]">
+                  <div className="w-screen px-4 sm:px-6 lg:px-8">
+                    {isPdf ? (
+                      <PdfInlineViewer url={docUrl || article.docxPath} />
+                    ) : (
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
+                        មិនអាចដាក់បង្ហាញឯកសារបាន។ សូមទាញយកហើយបើកជាមួយកម្មវិធីដែលគាំទ្រ PDF/DOCX។
+                      </p>
+                    )}
+                  </div>
                 </div>
               )}
 
