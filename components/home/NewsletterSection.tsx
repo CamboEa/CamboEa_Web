@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { Button } from '@/components/ui';
 
 export const NewsletterSection = () => {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -15,12 +15,9 @@ export const NewsletterSection = () => {
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    setIsSuccess(true);
     setEmail('');
     setIsSubmitting(false);
-
-    // Reset success message after 3 seconds
-    setTimeout(() => setIsSuccess(false), 3000);
+    toast.success('ជាវជោគជ័យ! សូមពិនិត្យអ៉ីមែលរបស់អ្នក។');
   };
 
   return (
@@ -69,16 +66,6 @@ export const NewsletterSection = () => {
               ជាវឥឡូវ
             </Button>
           </div>
-
-          {/* Success Message */}
-          {isSuccess && (
-            <div className="mt-4 p-4 bg-green-500/20 backdrop-blur-sm border border-green-400/30 rounded-lg flex items-center gap-2 animate-fade-in">
-              <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="text-green-100 font-medium">ជាវជោគជ័យ! សូមពិនិត្យអ៉ីមែលរបស់អ្នក។</span>
-            </div>
-          )}
 
           <p className="mt-4 text-sm text-blue-200 text-center">
             យើងគោរពភាពឯកជនរបស់អ្នក។ លែងជាវគ្រប់ពេលបាន។

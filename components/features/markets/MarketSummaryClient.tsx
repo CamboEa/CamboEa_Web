@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 const SUMMARY_SYMBOLS: { symbol: string; label: string }[] = [
   { symbol: 'EURUSD', label: 'EUR/USD' },
@@ -62,7 +63,9 @@ export function MarketSummaryClient() {
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load summary');
+          const message = e instanceof Error ? e.message : 'Failed to load summary';
+          setError(message);
+          toast.error(message);
           setRows([]);
         }
       } finally {
@@ -86,8 +89,8 @@ export function MarketSummaryClient() {
 
   if (error) {
     return (
-      <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300">
-        {error}
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+        No summary data available.
       </div>
     );
   }

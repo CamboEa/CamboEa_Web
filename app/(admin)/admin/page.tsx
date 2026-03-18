@@ -52,20 +52,13 @@ export default function AdminDashboardPage() {
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
           គ្រប់គ្រងខ្លឹមសារ
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <Link
             href="/admin/news"
             className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
           >
             <span className="font-medium text-gray-900 dark:text-white">ព័ត៌មាន</span>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">គ្រប់គ្រងអត្ថបទ និងព័ត៌មាន</p>
-          </Link>
-          <Link
-            href="/admin/markets"
-            className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-          >
-            <span className="font-medium text-gray-900 dark:text-white">ទីផ្សារ</span>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">ការកំណត់ និងទិន្នន័យទីផ្សារ</p>
           </Link>
           <Link
             href="/admin/users"

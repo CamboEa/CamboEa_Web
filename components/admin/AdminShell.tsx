@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const ADMIN_NAV = [
   { href: '/admin', label: 'ផ្ទាំងគ្រប់គ្រង' },
   { href: '/admin/news', label: 'ព័ត៌មាន' },
-  { href: '/admin/markets', label: 'ទីផ្សារ' },
   { href: '/admin/users', label: 'អ្នកប្រើ' },
   { href: '/admin/ea-bot', label: 'EA Bot Management' },
 ];
@@ -21,9 +21,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const handleLogout = async () => {
     setLoggingOut(true);
     try {
-      await fetch('/api/admin/logout', { method: 'POST' });
+      const res = await fetch('/api/admin/logout', { method: 'POST' });
+      if (!res.ok) {
+        toast.error('ចាកចេញមិនបាន');
+        return;
+      }
       router.push('/admin/pin');
       router.refresh();
+      toast.success('ចាកចេញបានជោគជ័យ');
     } finally {
       setLoggingOut(false);
     }

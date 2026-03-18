@@ -2,7 +2,8 @@
 
 // CamboEA - Forex, Metals & Crypto price table with bias (Twelve Data)
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { toast } from 'react-toastify';
 
 export type Bias = 'bullish' | 'bearish' | 'neutral';
 
@@ -42,6 +43,11 @@ interface MarketsApiResponse {
   crypto: PriceRow[];
 }
 
+interface RetailerOutlookRow {
+  pair: string;
+  signal: 'buy' | 'sell' | 'neutral';
+}
+
 function formatPrice(row: PriceRow): string {
   const dec = row.decimals ?? 2;
   if (row.price >= 1000) return row.price.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
@@ -72,6 +78,23 @@ function filterRows(rows: PriceRow[], query: string): PriceRow[] {
       r.symbol.toLowerCase().includes(q) ||
       r.name.toLowerCase().includes(q)
   );
+}
+
+function normalizeSymbol(symbol: string): string {
+  return symbol.toUpperCase().replace(/[^A-Z0-9]/g, '');
+}
+
+function biasFromRetailerSignal(signal: RetailerOutlookRow['signal']): Bias {
+  if (signal === 'buy') return 'bullish';
+  if (signal === 'sell') return 'bearish';
+  return 'neutral';
+}
+
+function applyRetailerBias(rows: PriceRow[], retailerSignals: Map<string, Bias>): PriceRow[] {
+  return rows.map((row) => {
+    const override = retailerSignals.get(normalizeSymbol(row.symbol));
+    return override ? { ...row, bias: override } : row;
+  });
 }
 
 function TableSection({ title, rows }: { title: string; rows: PriceRow[] }) {
@@ -130,6 +153,7 @@ export function MarketsPriceTable() {
   const [data, setData] = useState<MarketsApiResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const lastToastErrorRef = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -137,17 +161,36 @@ export function MarketsPriceTable() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch('/api/markets');
-        const json = await res.json();
+        const [marketsRes, retailerRes] = await Promise.all([
+          fetch('/api/markets'),
+          fetch('/api/retail-outlook').catch(() => null),
+        ]);
+
+        const json = await marketsRes.json();
         if (cancelled) return;
-        if (!res.ok) {
+        if (!marketsRes.ok) {
           setError(json.error ?? 'Failed to load');
           setData(null);
           return;
         }
-        const forex = json.forex ?? [];
-        const metals = json.metals ?? [];
-        const crypto = json.crypto ?? [];
+        let forex: PriceRow[] = json.forex ?? [];
+        let metals: PriceRow[] = json.metals ?? [];
+        let crypto: PriceRow[] = json.crypto ?? [];
+
+        if (retailerRes?.ok) {
+          const retailerJson = (await retailerRes.json().catch(() => [])) as RetailerOutlookRow[];
+          if (Array.isArray(retailerJson) && retailerJson.length > 0) {
+            const retailerSignals = new Map<string, Bias>();
+            for (const row of retailerJson) {
+              if (!row?.pair || !row?.signal) continue;
+              retailerSignals.set(normalizeSymbol(row.pair), biasFromRetailerSignal(row.signal));
+            }
+            forex = applyRetailerBias(forex, retailerSignals);
+            metals = applyRetailerBias(metals, retailerSignals);
+            crypto = applyRetailerBias(crypto, retailerSignals);
+          }
+        }
+
         if (forex.length === 0 && metals.length === 0 && crypto.length === 0) {
           setError(json.error ?? 'No data');
           setData(null);
@@ -170,6 +213,17 @@ export function MarketsPriceTable() {
       clearInterval(interval);
     };
   }, []);
+
+  useEffect(() => {
+    if (!error) {
+      lastToastErrorRef.current = null;
+      return;
+    }
+    if (lastToastErrorRef.current !== error) {
+      toast.warn(`បង្ហាញទិន្នន័យគំរូ — ${error}`);
+      lastToastErrorRef.current = error;
+    }
+  }, [error]);
 
   const forex = data?.forex ?? FALLBACK_FOREX;
   const metals = data?.metals ?? FALLBACK_METALS;
@@ -197,9 +251,6 @@ export function MarketsPriceTable() {
           </h2>
           {loading && (
             <span className="text-sm text-gray-500 dark:text-gray-400">កំពុងផ្ទុក...</span>
-          )}
-          {error && !loading && (
-            <span className="text-sm text-amber-600 dark:text-amber-400">បង្ហាញទិន្នន័យគំរូ — {error}</span>
           )}
         </div>
 

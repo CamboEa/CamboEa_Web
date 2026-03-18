@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 const MARKET_OPTIONS: { value: 'overview' | 'graphic' | 'depth' | 'retailer'; label: string }[] = [
   { value: 'overview', label: 'ទិដ្ឋភាពទីផ្សារ (Overview)' },
@@ -56,6 +57,7 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
   const [data, setData] = useState<DepthState>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const lastToastErrorRef = useRef<string | null>(null);
   const [showHelpPopup, setShowHelpPopup] = useState(false);
 
   const handleMarketDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -85,12 +87,23 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
         asks: Array.isArray(j.asks) ? j.asks : [],
       });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load depth');
+      const message = e instanceof Error ? e.message : 'Failed to load depth';
+      setError(message);
+      if (lastToastErrorRef.current !== message) {
+        toast.error(message);
+        lastToastErrorRef.current = message;
+      }
       setData(null);
     } finally {
       setLoading(false);
     }
   }, [symbol]);
+
+  useEffect(() => {
+    if (!error) {
+      lastToastErrorRef.current = null;
+    }
+  }, [error]);
 
   useEffect(() => {
     setLoading(true);
@@ -250,9 +263,9 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
         </div>
       )}
 
-      {error && (
-        <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300">
-          {error}
+      {error && !loading && !data && (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+          No depth data available.
         </div>
       )}
 

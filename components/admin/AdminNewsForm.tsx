@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { sanitizeArticleContent, isHtmlContent } from '@/lib/sanitize-article-html';
 import { getSupabaseBrowserClient } from '@/lib/supabase-client';
@@ -27,11 +28,9 @@ const defaultValues = {
 export function AdminNewsForm({ article }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
   const [form, setForm] = useState(defaultValues);
   const [contentFile, setContentFile] = useState<File | null>(null);
   const [extracting, setExtracting] = useState(false);
-  const [extractError, setExtractError] = useState('');
   const [docxUrl, setDocxUrl] = useState(article?.docxPath ?? '');
   const contentInputRef = React.useRef<HTMLInputElement>(null);
 
@@ -56,7 +55,6 @@ export function AdminNewsForm({ article }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setSaving(true);
     try {
       // If a DOC/PDF file is selected, upload it to Supabase Storage on submit
@@ -72,7 +70,7 @@ export function AdminNewsForm({ article }: Props) {
 
           if (uploadError) {
             console.error(uploadError);
-            setError('អាប់ឡូដឯកសារទៅ Storage មិនបាន');
+            toast.error('អាប់ឡូដឯកសារទៅ Storage មិនបាន');
           } else {
             const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
             if (data?.publicUrl) {
@@ -82,7 +80,7 @@ export function AdminNewsForm({ article }: Props) {
           }
         } catch (err) {
           console.error(err);
-          setError('មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Supabase Storage');
+          toast.error('មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Supabase Storage');
         }
       }
 
@@ -117,9 +115,10 @@ export function AdminNewsForm({ article }: Props) {
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(data.error || 'កែប្រែមិនបាន');
+          toast.error(data.error || 'កែប្រែមិនបាន');
           return;
         }
+        toast.success('រក្សាទុកបានជោគជ័យ');
         router.push('/admin/news');
         router.refresh();
       } else {
@@ -130,9 +129,10 @@ export function AdminNewsForm({ article }: Props) {
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok) {
-          setError(data.error || 'បន្ថែមមិនបាន');
+          toast.error(data.error || 'បន្ថែមមិនបាន');
           return;
         }
+        toast.success('បន្ថែមអត្ថបទបានជោគជ័យ');
         router.push('/admin/news');
         router.refresh();
       }
@@ -143,7 +143,6 @@ export function AdminNewsForm({ article }: Props) {
 
   const handleExtractContent = async () => {
     if (!contentFile) return;
-    setExtractError('');
     setExtracting(true);
     try {
       const formData = new FormData();
@@ -154,11 +153,12 @@ export function AdminNewsForm({ article }: Props) {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setExtractError(data.error || 'អានឯកសារមិនបាន');
+        toast.error(data.error || 'អានឯកសារមិនបាន');
         return;
       }
       if (data.content) {
         setForm((f) => ({ ...f, content: data.content }));
+        toast.success('អានឯកសារបានជោគជ័យ');
       }
       // keep file selected so submit can upload it
     } finally {
@@ -172,12 +172,6 @@ export function AdminNewsForm({ article }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-4">
-      {error && (
-        <p className="rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-3 py-2 text-sm">
-          {error}
-        </p>
-      )}
-
       <div>
         <label htmlFor="title" className={labelClass}>
           ចំណងជើង *
@@ -251,9 +245,6 @@ export function AdminNewsForm({ article }: Props) {
             {extracting ? 'កំពុងអាន...' : 'អានឯកសារ → ខ្លឹមសារ'}
           </button>
         </div>
-        {extractError && (
-          <p className="mb-2 text-sm text-red-600 dark:text-red-400">{extractError}</p>
-        )}
         <textarea
           id="content"
           rows={6}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { toast } from 'react-toastify';
 
 interface PdfInlineViewerProps {
   url: string;
@@ -60,7 +61,9 @@ export default function PdfInlineViewer({ url }: PdfInlineViewerProps) {
       setLoading(false);
     } catch (err) {
       console.error('PDF render error:', err);
-      setError('មិនអាចបង្ហាញឯកសារ PDF បានទេ។');
+      const message = 'មិនអាចបង្ហាញឯកសារ PDF បានទេ។';
+      setError(message);
+      toast.error(message);
       setLoading(false);
     }
   }, [url]);

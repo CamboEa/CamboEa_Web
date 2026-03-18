@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useMemo, useState, memo } from 'react';
+import { toast } from 'react-toastify';
 
 export type RetailerRow = {
   pair: string;
@@ -193,7 +194,6 @@ const RetailerRowItem = memo(function RetailerRowItem({ row }: { row: RetailerRo
 export function RetailerDataClient() {
   const [data, setData] = useState<RetailerRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<'currency' | 'metal' | 'crypto'>('currency');
   const [searchTerm, setSearchTerm] = useState('');
   const grouped = useMemo(() => {
@@ -227,7 +227,6 @@ export function RetailerDataClient() {
     let cancelled = false;
     async function fetchData() {
       try {
-        setError(null);
         const res = await fetch('/api/retail-outlook', { referrerPolicy: 'no-referrer' });
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
@@ -237,7 +236,7 @@ export function RetailerDataClient() {
         if (!cancelled && Array.isArray(json)) setData(json);
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Failed to load retailer data');
+          toast.error(e instanceof Error ? e.message : 'Failed to load retailer data');
           setData([]);
         }
       } finally {
@@ -255,14 +254,6 @@ export function RetailerDataClient() {
       <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center">
         <div className="inline-block w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3" />
         <p className="text-sm text-gray-500 dark:text-gray-400">កំពុងផ្ទុកទិន្នន័យអ្នកលក់រាយ...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 p-4 text-sm text-red-700 dark:text-red-300">
-        {error}
       </div>
     );
   }

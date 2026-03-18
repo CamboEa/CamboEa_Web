@@ -310,6 +310,68 @@ export const TradingViewMiniChart = memo(function TradingViewMiniChart({
   );
 });
 
+interface TradingViewTechnicalHeatmapProps {
+  symbol: string;
+  height?: number;
+  interval?: '1m' | '5m' | '15m' | '1h' | '4h' | '1D' | '1W' | '1M';
+}
+
+// Technical-analysis widget: practical free "heatmap-like" sentiment view for one symbol.
+export const TradingViewTechnicalHeatmap = memo(function TradingViewTechnicalHeatmap({
+  symbol,
+  height = 420,
+  interval = '1D',
+}: TradingViewTechnicalHeatmapProps) {
+  const container = useRef<HTMLDivElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const { ref: viewRef, inView } = useInView();
+  const widgetId = `ta-${symbol}-${interval}`;
+
+  useEffect(() => {
+    if (!inView || !container.current) return;
+    if (widgetCache.get(widgetId)) {
+      setIsLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
+    script.type = 'text/javascript';
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      interval,
+      width: '100%',
+      isTransparent: false,
+      height,
+      symbol,
+      showIntervalTabs: true,
+      displayMode: 'single',
+      locale: 'en',
+      colorTheme: 'light',
+    });
+
+    script.onload = () => {
+      setIsLoaded(true);
+      widgetCache.set(widgetId, true);
+    };
+
+    container.current.appendChild(script);
+  }, [height, inView, interval, symbol, widgetId]);
+
+  return (
+    <div ref={viewRef} style={{ minHeight: height }}>
+      {!isLoaded && <WidgetSkeleton height={height} />}
+      <div
+        className={`tradingview-widget-container transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0 absolute'}`}
+        ref={container}
+        style={{ height }}
+      >
+        <div className="tradingview-widget-container__widget"></div>
+      </div>
+    </div>
+  );
+});
+
 const MARKET_OVERVIEW_HEADER_OFFSET = 200;
 
 interface TradingViewMarketOverviewProps {

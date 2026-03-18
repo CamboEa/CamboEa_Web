@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 import { ConfirmModal } from '@/components/admin/ConfirmModal';
 import type { NewsArticle } from '@/types';
 
@@ -47,7 +48,12 @@ export default function AdminNewsPage() {
       if (res.ok) {
         const data = await res.json();
         setArticles(Array.isArray(data) ? data : []);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data.error || 'ផ្ទុកព័ត៌មានមិនបាន');
       }
+    } catch {
+      toast.error('ផ្ទុកព័ត៌មានមិនបាន');
     } finally {
       setLoading(false);
     }
@@ -69,10 +75,13 @@ export default function AdminNewsPage() {
     setDeletingId(id);
     try {
       const res = await fetch(`/api/admin/news/${id}`, { method: 'DELETE' });
-      if (res.ok) await load();
+      if (res.ok) {
+        toast.success('លុបបានជោគជ័យ');
+        await load();
+      }
       else {
         const data = await res.json().catch(() => ({}));
-        alert(data.error || 'លុបមិនបាន');
+        toast.error(data.error || 'លុបមិនបាន');
       }
     } finally {
       setDeletingId(null);
