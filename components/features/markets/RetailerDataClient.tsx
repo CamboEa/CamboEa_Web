@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState, memo } from 'react';
+import React, { useEffect, useMemo, useState, memo } from 'react';
 
 export type RetailerRow = {
   pair: string;
@@ -55,6 +55,97 @@ const SIGNAL_HINT: Record<string, string> = {
   neutral: 'អព្យាក្រឹត',
 };
 
+const FIAT_CODES = new Set([
+  'AUD',
+  'CAD',
+  'CHF',
+  'CNH',
+  'CZK',
+  'DKK',
+  'EUR',
+  'GBP',
+  'HKD',
+  'HUF',
+  'JPY',
+  'MXN',
+  'NOK',
+  'NZD',
+  'PLN',
+  'SEK',
+  'SGD',
+  'THB',
+  'TRY',
+  'USD',
+  'ZAR',
+]);
+
+const CRYPTO_CODES = [
+  'BTC',
+  'ETH',
+  'LTC',
+  'XRP',
+  'BCH',
+  'XMR',
+  'ZEC',
+  'DASH',
+  'DSH',
+  'ETC',
+  'NEO',
+  'EOS',
+  'ADA',
+  'SOL',
+  'DOT',
+  'UNI',
+  'TRX',
+  'XLM',
+  'ICP',
+  'MKR',
+  'FIL',
+  'AXS',
+  'ENJ',
+  'ZIL',
+  'LRC',
+  'GRT',
+  'BNT',
+  'YFI',
+  'XTZ',
+  'OMG',
+  'QTM',
+  'IOT',
+  'IOTA',
+  'VET',
+  'FET',
+  'BAT',
+  'FTM',
+] as const;
+
+function normalizeSymbol(raw: string): string {
+  return raw.toUpperCase().replace(/[^A-Z]/g, '');
+}
+
+function isMetalSymbol(pair: string): boolean {
+  const symbol = normalizeSymbol(pair);
+  return (
+    symbol.startsWith('XAU') ||
+    symbol.startsWith('XAG') ||
+    symbol.startsWith('XPT') ||
+    symbol.startsWith('XPD')
+  );
+}
+
+function isCryptoSymbol(pair: string): boolean {
+  const symbol = normalizeSymbol(pair);
+  return CRYPTO_CODES.some((code) => symbol.includes(code));
+}
+
+function isCurrencyPair(pair: string): boolean {
+  const symbol = normalizeSymbol(pair);
+  if (!/^[A-Z]{6}$/.test(symbol)) return false;
+  const base = symbol.slice(0, 3);
+  const quote = symbol.slice(3, 6);
+  return FIAT_CODES.has(base) && FIAT_CODES.has(quote);
+}
+
 const RetailerRowItem = memo(function RetailerRowItem({ row }: { row: RetailerRow }) {
   const leftPct = Math.max(0, Math.min(100, row.avgLeft));
   const rightPct = Math.max(0, Math.min(100, row.avgRight));
@@ -103,13 +194,41 @@ export function RetailerDataClient() {
   const [data, setData] = useState<RetailerRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<'currency' | 'metal' | 'crypto'>('currency');
+  const [searchTerm, setSearchTerm] = useState('');
+  const grouped = useMemo(() => {
+    const currency: RetailerRow[] = [];
+    const metal: RetailerRow[] = [];
+    const crypto: RetailerRow[] = [];
+    const other: RetailerRow[] = [];
+
+    for (const row of data) {
+      if (isMetalSymbol(row.pair)) {
+        metal.push(row);
+      } else if (isCryptoSymbol(row.pair)) {
+        crypto.push(row);
+      } else if (isCurrencyPair(row.pair)) {
+        currency.push(row);
+      } else {
+        other.push(row);
+      }
+    }
+
+    return { currency, metal, crypto, other };
+  }, [data]);
+  const visibleRows = useMemo(() => {
+    const rows = grouped[activeFilter];
+    const query = searchTerm.trim().toUpperCase();
+    if (!query) return rows;
+    return rows.filter((row) => row.pair.toUpperCase().includes(query));
+  }, [grouped, activeFilter, searchTerm]);
 
   useEffect(() => {
     let cancelled = false;
     async function fetchData() {
       try {
         setError(null);
-        const res = await fetch('/api/r', { referrerPolicy: 'no-referrer' });
+        const res = await fetch('/api/retail-outlook', { referrerPolicy: 'no-referrer' });
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
           throw new Error(j.error || `HTTP ${res.status}`);
@@ -155,11 +274,68 @@ export function RetailerDataClient() {
           ទិន្នន័យអ្នកលក់រាយ (Retailer)
         </h3>
       </div>
-      <ul className="divide-y divide-gray-200 dark:divide-gray-700">
-        {data.map((row) => (
-          <RetailerRowItem key={row.pair} row={row} />
-        ))}
-      </ul>
+      <div className="p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-900/40">
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setActiveFilter('currency')}
+            className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+              activeFilter === 'currency'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+            }`}
+          >
+            Currency ({grouped.currency.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveFilter('metal')}
+            className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+              activeFilter === 'metal'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+            }`}
+          >
+            Metal ({grouped.metal.length})
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveFilter('crypto')}
+            className={`px-3 py-1 rounded-md text-xs font-semibold transition-colors ${
+              activeFilter === 'crypto'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-600'
+            }`}
+          >
+            Crypto ({grouped.crypto.length})
+          </button>
+        </div>
+        <div className="mt-2">
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search symbol (e.g. EURUSD, XAU, BTC)"
+            className="w-full h-9 rounded-md border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-xs text-gray-900 dark:text-gray-100 placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
+          />
+        </div>
+      </div>
+      {visibleRows.length > 0 ? (
+        <ul className="divide-y divide-gray-200 dark:divide-gray-700">
+          {visibleRows.map((row, index) => (
+            <RetailerRowItem key={`${row.pair}-${index}`} row={row} />
+          ))}
+        </ul>
+      ) : (
+        <div className="px-3 py-4 text-xs text-gray-500 dark:text-gray-400">
+          No data in this category.
+        </div>
+      )}
+      {grouped.other.length > 0 && (
+        <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 text-[11px] text-gray-500 dark:text-gray-400">
+          Other symbols: {grouped.other.length}
+        </div>
+      )}
     </div>
   );
 }
