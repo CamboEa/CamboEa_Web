@@ -9,6 +9,7 @@ const ADMIN_NAV = [
   { href: '/admin', label: 'ផ្ទាំងគ្រប់គ្រង' },
   { href: '/admin/news', label: 'ព័ត៌មាន' },
   { href: '/admin/users', label: 'អ្នកប្រើ' },
+  { href: '/admin/lesson', label: 'Lesson Management' },
   { href: '/admin/ea-bot', label: 'EA Bot Management' },
   { href: '/admin/indicator', label: 'Indicator Management' },
 ];

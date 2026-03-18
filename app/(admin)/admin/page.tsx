@@ -68,6 +68,13 @@ export default function AdminDashboardPage() {
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">គណនី និងសិទ្ធិ</p>
           </Link>
           <Link
+            href="/admin/lesson"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          >
+            <span className="font-medium text-gray-900 dark:text-white">Lesson Management</span>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">គ្រប់គ្រងមេរៀន (ចំណងជើង/ពិពណ៌នា/URL)</p>
+          </Link>
+          <Link
             href="/admin/ea-bot"
             className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
           >
