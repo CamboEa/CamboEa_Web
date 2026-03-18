@@ -4,10 +4,9 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 
-const MARKET_OPTIONS: { value: 'overview' | 'graphic' | 'depth' | 'retailer'; label: string }[] = [
+const MARKET_OPTIONS: { value: 'overview' | 'depth' | 'retailer'; label: string }[] = [
   { value: 'overview', label: 'ទិដ្ឋភាពទីផ្សារ (Overview)' },
   { value: 'depth', label: 'ជម្រៅទីផ្សារ (Level 1 & 2)' },
-  { value: 'graphic', label: 'Graphic (ក្រាហ្វ)' },
   { value: 'retailer', label: 'ទិន្នន័យអ្នកលក់រាយ (Retailer)' },
 ];
 
@@ -36,6 +35,23 @@ type DepthState = {
   asks: [string, string][];
 } | null;
 
+function MyfxbookForexRatesWidget({ height = 430 }: { height?: number }) {
+  return (
+    <div className="space-y-2">
+      <div style={{ height }}>
+        <iframe
+          src="https://widget.myfxbook.com/widget/market-quotes.html?symbols=EURGBP,EURUSD,GBPJPY,GBPUSD,USDJPY,XAGAUD,XAUUSD"
+          style={{ border: 0, width: '100%', height: '100%' }}
+          title="Forex Rates"
+          loading="lazy"
+        />
+      </div>
+      <div className="mt-2">       
+      </div>
+    </div>
+  );
+}
+
 function formatNum(s: string, decimals: number): string {
   const n = parseFloat(s);
   if (Number.isNaN(n)) return s;
@@ -61,10 +77,9 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
   const [showHelpPopup, setShowHelpPopup] = useState(false);
 
   const handleMarketDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value as 'overview' | 'graphic' | 'depth' | 'retailer';
+    const value = e.target.value as 'overview' | 'depth' | 'retailer';
     if (value === 'depth') return;
-    if (value === 'graphic') router.push('/markets?view=graphic');
-    else if (value === 'retailer') router.push('/markets?view=retailer');
+    if (value === 'retailer') router.push('/markets?view=retailer');
     else router.push('/markets');
   };
 
@@ -158,11 +173,42 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
     const maxBidQty = Math.max(...bids.map(([, q]) => parseFloat(q) || 0), 1);
     const maxAskQty = Math.max(...asks.map(([, q]) => parseFloat(q) || 0), 1);
     return { bids, asks, maxBidQty, maxAskQty };
-  }, [data?.bids, data?.asks]);
+  }, [data]);
 
   return (
     <div className="space-y-6 mb-8">
-      <div className="flex flex-wrap items-center gap-4 mt-7">
+
+      {loading && !data && (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center">
+          <div className="inline-block w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">កំពុងផ្ទុកជម្រៅទីផ្សារ...</p>
+        </div>
+      )}
+
+      {error && !loading && !data && (
+        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
+          No depth data available.
+        </div>
+      )}
+
+      {data && (
+        <> 
+          {/* Level 2 - Order book (redesigned) */}
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+              <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+                Forex Rates 
+              </h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                តារាងតម្លៃប្ដូរប្រាក់ផ្ទាល់ និងឧបករណ៍សំខាន់ៗសម្រាប់ពិនិត្យល្បឿនទីផ្សារ។
+              </p>
+            </div>
+            <div className="p-3 sm:p-4">
+              <MyfxbookForexRatesWidget height={430} />
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-4 mt-7">
         {!embedded && (
           <select
             value="depth"
@@ -255,24 +301,8 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
           </div>
         </div>
       )}
-
-      {loading && !data && (
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-8 text-center">
-          <div className="inline-block w-8 h-8 border-2 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-3" />
-          <p className="text-sm text-gray-500 dark:text-gray-400">កំពុងផ្ទុកជម្រៅទីផ្សារ...</p>
-        </div>
-      )}
-
-      {error && !loading && !data && (
-        <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-sm text-gray-500 dark:text-gray-400">
-          No depth data available.
-        </div>
-      )}
-
-      {data && (
-        <>
-          {/* Level 1 */}
-          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+                   {/* Level 1 */}
+                   <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
               <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
                 Level 1 — តម្លៃដេញថ្លៃ / តម្លៃយល់ព្រម / ថ្លៃចុងក្រោយ
@@ -320,6 +350,7 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
               </div>
             )}
           </div>
+
 
           {/* Level 2 - Order book (redesigned) */}
           {orderBookDerived && (

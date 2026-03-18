@@ -2,7 +2,12 @@
 
 import React, { useState, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
-import { TradingViewTechnicalHeatmap, TradingViewWidget } from './TradingViewWidgets';
+import {
+  MyfxbookEconomicCalendarWidget,
+  MyfxbookForexHeatmapWidget,
+  MyfxbookVolatilityWidget,
+  TradingViewTechnicalHeatmap,
+} from './TradingViewWidgets';
 
 // Lazy-load heavy view components for better initial load and smaller main bundle
 const MarketDepthClient = dynamic(
@@ -24,7 +29,7 @@ function ViewSkeleton({ text }: { text: string }) {
   );
 }
 
-type ViewMode = 'overview' | 'graphic' | 'retailer' | 'depth';
+type ViewMode = 'overview' | 'retailer' | 'depth' | 'calendar' | 'volatility';
 
 const PAIRS: { label: string; tvSymbol: string }[] = [
   { label: 'EUR/USD', tvSymbol: 'FX:EURUSD' },
@@ -43,25 +48,24 @@ const PAIRS: { label: string; tvSymbol: string }[] = [
   { label: 'BNB/USD', tvSymbol: 'BINANCE:BNBUSD' },
 ];
 
-const MARKET_OPTIONS: { value: 'overview' | 'graphic' | 'depth' | 'retailer'; label: string }[] = [
+const MARKET_OPTIONS: { value: 'overview' | 'depth' | 'retailer' | 'calendar' | 'volatility'; label: string }[] = [
   { value: 'overview', label: 'ទិដ្ឋភាពទីផ្សារ (Overview)' },
   { value: 'depth', label: 'ជម្រៅទីផ្សារ (Level 1 & 2)' },
-  { value: 'graphic', label: 'Graphic (ក្រាហ្វ)' },
   { value: 'retailer', label: 'ទិន្នន័យអ្នកលក់រាយ (Retailer)' },
+  { value: 'calendar', label: 'ប្រតិទិនសេដ្ឋកិច្ច' },
+  { value: 'volatility', label: 'Volatility' },
 ];
 
-type MarketsPageClientProps = { initialView?: 'overview' | 'graphic' | 'retailer' | 'depth' };
+type MarketsPageClientProps = { initialView?: 'overview' | 'retailer' | 'depth' | 'calendar' | 'volatility' };
 
-export function MarketsPageClient({ initialView = 'retailer' }: MarketsPageClientProps) {
+export function MarketsPageClient({ initialView = 'overview' }: MarketsPageClientProps) {
   const [view, setView] = useState<ViewMode>(initialView);
-  const [dropdownValue, setDropdownValue] = useState<'overview' | 'graphic' | 'depth' | 'retailer'>(initialView);
+  const [dropdownValue, setDropdownValue] = useState<'overview' | 'depth' | 'retailer' | 'calendar' | 'volatility'>(initialView);
   const [overviewQuery, setOverviewQuery] = useState('');
   const [selectedOverviewPair, setSelectedOverviewPair] = useState<{ label: string; tvSymbol: string }>({
     label: 'XAU/USD',
     tvSymbol: 'TVC:GOLD',
   });
-  const [query, setQuery] = useState('');
-  const [selectedPair, setSelectedPair] = useState<{ label: string; tvSymbol: string } | null>({ label: 'XAU/USD', tvSymbol: 'TVC:GOLD' });
 
   const overviewFiltered = useMemo(() => {
     const q = overviewQuery.trim().toLowerCase();
@@ -72,16 +76,6 @@ export function MarketsPageClient({ initialView = 'retailer' }: MarketsPageClien
         p.label.replace('/', '').toLowerCase().includes(q)
     );
   }, [overviewQuery]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return PAIRS;
-    return PAIRS.filter(
-      (p) =>
-        p.label.toLowerCase().includes(q) ||
-        p.label.replace('/', '').toLowerCase().includes(q)
-    );
-  }, [query]);
 
   const setViewTo = useCallback((v: ViewMode) => {
     setDropdownValue(v);
@@ -116,6 +110,20 @@ export function MarketsPageClient({ initialView = 'retailer' }: MarketsPageClien
         <div className="p-4 sm:p-6 min-h-[360px] ">
           {view === 'overview' && (
             <div className="rounded-xl overflow-hidden space-y-4">
+              <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                    Forex Heat Map
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                    មើលកម្រិតខ្លាំង/ខ្សោយរបស់រូបិយប័ណ្ណសំខាន់ៗ
+                  </p>
+                </div>
+                <div className="p-3 sm:p-4">
+                  <MyfxbookForexHeatmapWidget height={300} />
+                </div>
+              </div>
+
               <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
                 <label htmlFor="overview-pair-search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
                   ស្វែងរកគូសម្រាប់ផែនទីកម្តៅ
@@ -209,82 +217,38 @@ export function MarketsPageClient({ initialView = 'retailer' }: MarketsPageClien
             </div>
           )}
 
-          {view === 'graphic' && (
-            <div className="flex flex-col gap-6">
-              <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
-                <div className="flex-1">
-                  <label htmlFor="pair-search" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
-                    ស្វែងរកគូ
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                      </svg>
-                    </span>
-                    <input
-                      id="pair-search"
-                      type="text"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      placeholder="ឧ. EUR/USD, XAU/USD, BTC"
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow"
-                      aria-label="ស្វែងរកគូ"
-                    />
-                  </div>
-                </div>
+          {view === 'calendar' && (
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                  Economic Calendar
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  តាមដានព្រឹត្តិការណ៍សេដ្ឋកិច្ចសំខាន់ៗ និងកម្រិតផលប៉ះពាល់។
+                </p>
               </div>
-              {query.trim() && (
-                <ul className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg max-h-48 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-700">
-                  {filtered.length === 0 ? (
-                    <li className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">មិនមានគូផ្គូផ្គង</li>
-                  ) : (
-                    filtered.map((pair) => (
-                      <li key={pair.tvSymbol}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedPair(pair);
-                            setQuery('');
-                          }}
-                          className="w-full text-left px-4 py-3 text-sm text-gray-900 dark:text-white hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors flex items-center justify-between rounded-lg"
-                        >
-                          <span className="font-medium">{pair.label}</span>
-                          <span className="text-gray-400 text-xs">ចុចដើម្បីមើលក្រាហ្វ</span>
-                        </button>
-                      </li>
-                    ))
-                  )}
-                </ul>
-              )}
-
-              {selectedPair ? (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                      ក្រាហ្វ — {selectedPair.label}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedPair(null)}
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
-                    >
-                      បិទ
-                    </button>
-                  </div>
-                  <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
-                    <TradingViewWidget symbol={selectedPair.tvSymbol} height={420} />
-                  </div>
-                </div>
-              ) : (
-                <div className="rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/30 py-16 text-center">
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    ស្វែងរកគូខាងលើ រួចចុចដើម្បីមើលក្រាហ្វ
-                  </p>
-                </div>
-              )}
+              <div className="p-3 sm:p-4">
+                <MyfxbookEconomicCalendarWidget height={620} />
+              </div>
             </div>
           )}
+
+          {view === 'volatility' && (
+            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
+              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                  Market Volatility
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  តាមដានកម្រិតភាពរំញ័រតម្លៃសម្រាប់គូសំខាន់ៗ
+                </p>
+              </div>
+              <div className="p-3 sm:p-4">
+                <MyfxbookVolatilityWidget height={300} />
+              </div>
+            </div>
+          )}
+
         </div>
       </div>
     </div>

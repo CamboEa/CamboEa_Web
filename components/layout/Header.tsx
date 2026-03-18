@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -14,11 +14,21 @@ const NAV_LINKS = [
   { href: '/ea-trading-bot', label: 'Tools' },
 ];
 
+const MORE_LINKS = [
+  { href: '/about', label: 'អំពីយើង' },
+  { href: '/contact', label: 'ទំនាក់ទំនង' },
+  { href: '/subscribe', label: 'តាមដាន' },
+  { href: '/lesson', label: 'មេរៀនអំពី Forex' },
+];
+
 export const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [isMobileMoreOpen, setIsMobileMoreOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const moreMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +38,23 @@ export const Header = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!moreMenuRef.current) return;
+      if (!moreMenuRef.current.contains(event.target as Node)) {
+        setIsMoreOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    setIsMoreOpen(false);
+    setIsMobileMoreOpen(false);
+  }, [pathname]);
 
   const handleSubscribeClick = () => {
     setIsMobileMenuOpen(false);
@@ -71,6 +98,49 @@ export const Header = () => {
                 {link.label}
               </Link>
             ))}
+            <div className="relative" ref={moreMenuRef}>
+              <button
+                type="button"
+                onClick={() => setIsMoreOpen((prev) => !prev)}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1 ${
+                  MORE_LINKS.some((link) => pathname === link.href) || isMoreOpen
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+                aria-haspopup="menu"
+                aria-expanded={isMoreOpen}
+              >
+                More
+                <svg
+                  className={`w-4 h-4 transition-transform ${isMoreOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {isMoreOpen && (
+                <div
+                  className="absolute right-0 mt-2 w-52 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-lg p-2 z-20"
+                  role="menu"
+                >
+                  {MORE_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                        pathname === link.href
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Right Actions */}
@@ -142,6 +212,40 @@ export const Header = () => {
                   {link.label}
                 </Link>
               ))}
+              <button
+                type="button"
+                onClick={() => setIsMobileMoreOpen((prev) => !prev)}
+                className="px-4 py-2 rounded-lg text-sm font-medium transition-all text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center justify-between"
+                aria-expanded={isMobileMoreOpen}
+              >
+                More pages
+                <svg
+                  className={`w-4 h-4 transition-transform ${isMobileMoreOpen ? 'rotate-180' : ''}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {isMobileMoreOpen && (
+                <div className="ml-2 pl-2 border-l border-gray-200 dark:border-gray-700 space-y-1">
+                  {MORE_LINKS.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                        pathname === link.href
+                          ? 'bg-blue-600 text-white'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
               <Button size="sm" className="mt-2" onClick={handleSubscribeClick}>
               តាមដាន
               </Button>

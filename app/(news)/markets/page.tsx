@@ -13,15 +13,17 @@ type PageProps = { searchParams: Promise<{ view?: string }> };
 export default async function MarketsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const initialView =
-    params.view === 'graphic'
-      ? 'graphic'
-      : params.view === 'overview'
+    params.view === 'overview'
         ? 'overview'
         : params.view === 'depth'
           ? 'depth'
+          : params.view === 'calendar'
+            ? 'calendar'
+            : params.view === 'volatility'
+              ? 'volatility'
           : params.view === 'retailer'
             ? 'retailer'
-            : 'retailer';
+              : 'overview';
   return (
     <main className="min-h-screen dark:bg-gray-950">
       <section className="bg-linear-to-br from-slate-800 via-slate-900 to-slate-800 text-white py-10 sm:py-12">
@@ -30,7 +32,7 @@ export default async function MarketsPage({ searchParams }: PageProps) {
             ទិន្នន័យទីផ្សារ
           </h1>
           <p className="mt-2 text-slate-300 text-sm sm:text-base max-w-2xl">
-            ទិដ្ឋភាពទីផ្សារ ជម្រៅ Order Book ក្រាហ្វ និងទិន្នន័យអ្នកលក់រាយ — ជ្រើសរើសខាងក្រោម។
+            ទិដ្ឋភាពទីផ្សារ ជម្រៅ Order Book និងទិន្នន័យអ្នកលក់រាយ — ជ្រើសរើសខាងក្រោម។
           </p>
         </div>
       </section>

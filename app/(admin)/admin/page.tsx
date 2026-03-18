@@ -74,6 +74,13 @@ export default function AdminDashboardPage() {
             <span className="font-medium text-gray-900 dark:text-white">EA Bot Management</span>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">គ្រប់គ្រង EA Trading Bot</p>
           </Link>
+          <Link
+            href="/admin/indicator"
+            className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          >
+            <span className="font-medium text-gray-900 dark:text-white">Indicator Management</span>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">គ្រប់គ្រង Trading Indicator</p>
+          </Link>
         </div>
       </section>
     </div>

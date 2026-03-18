@@ -10,6 +10,7 @@ const ADMIN_NAV = [
   { href: '/admin/news', label: 'ព័ត៌មាន' },
   { href: '/admin/users', label: 'អ្នកប្រើ' },
   { href: '/admin/ea-bot', label: 'EA Bot Management' },
+  { href: '/admin/indicator', label: 'Indicator Management' },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
