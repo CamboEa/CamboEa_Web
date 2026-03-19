@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { NewsImage } from '@/components/features/news/NewsImage';
 import { notFound } from 'next/navigation';
 import { getArticleBySlug, getRelatedArticles, getNewsArticles } from '@/lib/api/news';
 import { NewsCard } from '@/components/features/news/NewsCard';
@@ -101,7 +101,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
               {/* Featured Image */}
               {article.image && (
                 <div className="relative h-64 sm:h-96 overflow-hidden mb-8">
-                  <Image src={article.image} alt={article.title} fill className="object-cover" />
+                  <NewsImage src={article.image} alt={article.title} fill className="object-cover" />
                 </div>
               )}
 

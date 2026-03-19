@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { NewsImage } from './NewsImage';
 import { NewsArticle } from '@/types';
 
 interface NewsCardProps {
@@ -30,7 +30,7 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
           </div>
           <div className="md:col-span-2 relative aspect-4/3 overflow-hidden">
             {article.image ? (
-              <Image 
+              <NewsImage 
                 src={article.image}
                 alt={article.title}
                 fill
@@ -52,7 +52,7 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
         <article>
           <div className="relative aspect-3/2 overflow-hidden mb-3">
             {article.image ? (
-              <Image
+              <NewsImage
                 src={article.image}
                 alt={article.title}
                 fill
@@ -83,7 +83,7 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
         <article>
           <div className="relative aspect-video overflow-hidden mb-2">
             {article.image ? (
-              <Image
+              <NewsImage
                 src={article.image}
                 alt={article.title}
                 fill
@@ -130,14 +130,14 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
         <article className="flex gap-4 items-start">
           {article.image && (
             <div className="shrink-0 w-24 h-24 overflow-hidden relative">
-              <Image
+            <NewsImage
                 src={article.image}
                 alt={article.title}
                 fill
                 className="object-cover"
               />
-            </div>
-          )}
+          </div>
+        )}
           <div className="flex-1 min-w-0 py-0.5">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-3 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
               {article.title}
