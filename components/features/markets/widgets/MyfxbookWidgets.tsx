@@ -59,7 +59,7 @@ export const MyfxbookEconomicCalendarWidget = memo(function MyfxbookEconomicCale
     <div className="space-y-2">
       <div style={{ height }}>
         <iframe
-          src="https://widget.myfxbook.com/widget/calendar.html?lang=kh&impacts=0,1,2,3&countries=China,France,Germany,Japan,United%20Kingdom,United%20States"
+          src="https://widget.myfxbook.com/widget/calendar.html?lang=kh&impacts=0,1,2,3&countries=China,Japan,United%20Kingdom,United%20States"
           width="100%"
           height="100%"
           style={{ border: 0 }}

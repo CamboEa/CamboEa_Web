@@ -96,39 +96,67 @@ export function LessonPageClient() {
       {filteredItems.length === 0 ? (
         <div className="p-6 text-sm text-gray-500 dark:text-gray-400">មិនមានលទ្ធផលត្រូវនឹងពាក្យស្វែងរកទេ។</div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">ចំណងជើង</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">ការពិពណ៌នា</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">ប្រភព/អ្នកនិពន្ធ</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">តំណមេរៀន</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.map((item) => (
-                <tr key={item.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
-                  <td className="py-3 px-4 text-gray-900 dark:text-white font-medium">{item.title}</td>
-                  <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
-                    {item.description || 'មិនមានការពិពណ៌នា'}
-                  </td>
-                  <td className="py-3 px-4 text-gray-600 dark:text-gray-300">{item.reference || '—'}</td>
-                  <td className="py-3 px-4">
-                    <a
-                      href={item.lessonUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline break-all"
-                    >
-                      បើកមេរៀន →
-                    </a>
-                  </td>
+        <>
+          <div className="md:hidden divide-y divide-gray-100 dark:divide-gray-700">
+            {filteredItems.map((item) => (
+              <div key={item.id} className="p-4 space-y-2">
+                <h3 className="text-base font-semibold text-gray-900 dark:text-white leading-snug wrap-break-word">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                  {item.description || 'មិនមានការពិពណ៌នា'}
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 wrap-break-word">
+                  ប្រភព/អ្នកនិពន្ធ: {item.reference || '—'}
+                </p>
+                <a
+                  href={item.lessonUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+                >
+                  បើកមេរៀន →
+                </a>
+              </div>
+            ))}
+          </div>
+
+          <div className="hidden md:block overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/40">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">ចំណងជើង</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">ការពិពណ៌នា</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">ប្រភព/អ្នកនិពន្ធ</th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300">តំណមេរៀន</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filteredItems.map((item) => (
+                  <tr key={item.id} className="border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <td className="py-3 px-4 text-gray-900 dark:text-white font-medium max-w-[280px] wrap-break-word">
+                      {item.title}
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300">
+                      {item.description || 'មិនមានការពិពណ៌នា'}
+                    </td>
+                    <td className="py-3 px-4 text-gray-600 dark:text-gray-300">{item.reference || '—'}</td>
+                    <td className="py-3 px-4">
+                      <a
+                        href={item.lessonUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+                      >
+                        បើកមេរៀន →
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
     </div>
   );

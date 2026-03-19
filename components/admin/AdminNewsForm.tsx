@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { sanitizeArticleContent, isHtmlContent } from '@/lib/sanitize-article-html';
-import { getSupabaseBrowserClient } from '@/lib/supabase-client';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 
 type Props = { article?: NewsArticle | null };
 
@@ -17,7 +17,6 @@ const defaultValues = {
   content: '',
   impact: '',
   category: 'crypto' as NewsCategory,
-  tags: '' as string,
   authorName: '',
   publishedAt: new Date().toISOString().slice(0, 16),
   readTime: '៥ នាទីអាន',
@@ -29,10 +28,6 @@ export function AdminNewsForm({ article }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState(defaultValues);
-  const [contentFile, setContentFile] = useState<File | null>(null);
-  const [extracting, setExtracting] = useState(false);
-  const [docxUrl, setDocxUrl] = useState(article?.docxPath ?? '');
-  const contentInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (article) {
@@ -43,7 +38,6 @@ export function AdminNewsForm({ article }: Props) {
         content: article.content,
         impact: article.impact ?? '',
         category: article.category,
-        tags: article.tags.join(', '),
         authorName: article.author.name,
         publishedAt: article.publishedAt.slice(0, 16),
         readTime: article.readTime,
@@ -57,55 +51,20 @@ export function AdminNewsForm({ article }: Props) {
     e.preventDefault();
     setSaving(true);
     try {
-      // If a DOC/PDF file is selected, upload it to Supabase Storage on submit
-      let finalDocxUrl = docxUrl;
-      if (contentFile && !finalDocxUrl) {
-        try {
-          const supabase = getSupabaseBrowserClient();
-          const bucket = 'news_docs';
-          const fileName = `news/${Date.now()}-${contentFile.name}`;
-          const { error: uploadError } = await supabase.storage
-            .from(bucket)
-            .upload(fileName, contentFile, { upsert: true });
-
-          if (uploadError) {
-            console.error(uploadError);
-            toast.error('អាប់ឡូដឯកសារទៅ Storage មិនបាន');
-          } else {
-            const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-            if (data?.publicUrl) {
-              finalDocxUrl = data.publicUrl;
-              setDocxUrl(data.publicUrl);
-            }
-          }
-        } catch (err) {
-          console.error(err);
-          toast.error('មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់ Supabase Storage');
-        }
-      }
-
-      const tags = form.tags
-        .split(',')
-        .map((t) => t.trim())
-        .filter(Boolean);
-      const payload: any = {
+      const payload = {
         title: form.title,
         slug: form.slug || undefined,
         excerpt: form.excerpt,
         content: form.content,
         impact: form.impact,
         category: form.category,
-        tags,
+        tags: [],
         authorName: form.authorName,
         publishedAt: new Date(form.publishedAt).toISOString(),
         readTime: form.readTime,
         image: form.image || undefined,
         featured: form.featured,
       };
-
-      if (finalDocxUrl || article?.docxPath) {
-        payload.docxPath = finalDocxUrl || article?.docxPath;
-      }
 
       if (article) {
         const res = await fetch(`/api/admin/news/${article.id}`, {
@@ -141,37 +100,12 @@ export function AdminNewsForm({ article }: Props) {
     }
   };
 
-  const handleExtractContent = async () => {
-    if (!contentFile) return;
-    setExtracting(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', contentFile);
-      const res = await fetch('/api/admin/news/extract-content', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        toast.error(data.error || 'អានឯកសារមិនបាន');
-        return;
-      }
-      if (data.content) {
-        setForm((f) => ({ ...f, content: data.content }));
-        toast.success('អានឯកសារបានជោគជ័យ');
-      }
-      // keep file selected so submit can upload it
-    } finally {
-      setExtracting(false);
-    }
-  };
-
   const inputClass =
     'w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500';
   const labelClass = 'block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1';
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-2xl space-y-4">
+    <form onSubmit={handleSubmit} className="w-full space-y-4">
       <div>
         <label htmlFor="title" className={labelClass}>
           ចំណងជើង *
@@ -215,42 +149,10 @@ export function AdminNewsForm({ article }: Props) {
         <label htmlFor="content" className={labelClass}>
           ខ្លឹមសារ
         </label>
-        <div className="mb-2 flex flex-wrap items-center gap-2">
-          <input
-            ref={contentInputRef}
-            type="file"
-            accept=".pdf,.doc,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            onChange={(e) => setContentFile(e.target.files?.[0] ?? null)}
-            className="hidden"
-            id="content-file-upload"
-          />
-          <button
-            type="button"
-            onClick={() => contentInputRef.current?.click()}
-            className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-          >
-            ជ្រើសរើសឯកសារ (PDF / DOC)
-          </button>
-          {contentFile && (
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {contentFile.name}
-            </span>
-          )}
-          <button
-            type="button"
-            onClick={handleExtractContent}
-            disabled={!contentFile || extracting}
-            className="rounded-lg border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50"
-          >
-            {extracting ? 'កំពុងអាន...' : 'អានឯកសារ → ខ្លឹមសារ'}
-          </button>
-        </div>
-        <textarea
-          id="content"
-          rows={6}
+        <RichTextEditor
           value={form.content}
-          onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-          className={inputClass}
+          onChange={(content) => setForm((f) => ({ ...f, content }))}
+          minHeight={280}
         />
         {isHtmlContent(form.content) && (
           <div className="mt-3">
@@ -303,19 +205,6 @@ export function AdminNewsForm({ article }: Props) {
             placeholder="៥ នាទីអាន"
           />
         </div>
-      </div>
-
-      <div>
-        <label htmlFor="tags" className={labelClass}>
-          តាធ័ (ញែកដោយក្បៀស)
-        </label>
-        <input
-          id="tags"
-          value={form.tags}
-          onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
-          className={inputClass}
-          placeholder="fed, bitcoin, gold"
-        />
       </div>
 
       <div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { sendNewsToTelegram } from '@/lib/telegram';
+import { sendNewsToFacebook } from '@/lib/facebook';
 import { requireAdmin } from '@/lib/admin-auth';
 
 // GET /api/admin/news — list all articles (admin only)
@@ -87,7 +88,6 @@ export async function POST(request: NextRequest) {
     const image = body.image ? String(body.image).trim() : undefined;
     const featured = Boolean(body.featured);
     const slug = body.slug ? String(body.slug).trim() : slugify(title);
-    const docxPath = body.docxPath ? String(body.docxPath).trim() : undefined;
 
     if (!title || !slug) {
       return NextResponse.json(
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
         read_time: readTime,
         image: image || null,
         featured,
-        docx_path: docxPath || null,
+        docx_path: null,
       })
       .select('*')
       .maybeSingle();
@@ -130,6 +130,14 @@ export async function POST(request: NextRequest) {
       image,
       impact,
     }).catch((err) => console.error('Telegram notification failed:', err));
+
+    sendNewsToFacebook({
+      title,
+      excerpt,
+      slug,
+      image,
+      impact,
+    }).catch((err) => console.error('Facebook post failed:', err));
 
     return NextResponse.json(data);
   } catch (e) {

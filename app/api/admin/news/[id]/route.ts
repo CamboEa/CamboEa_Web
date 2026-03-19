@@ -119,7 +119,6 @@ export async function PUT(
     const image =
       body.image !== undefined ? (body.image ? String(body.image).trim() : null) : existing.image;
     const featured = body.featured !== undefined ? Boolean(body.featured) : existing.featured;
-    const docxPath = body.docxPath !== undefined ? String(body.docxPath).trim() : existing.docx_path;
     let slug = body.slug !== undefined ? String(body.slug).trim() : existing.slug;
     if (!slug) slug = slugify(title) || existing.slug;
 
@@ -145,7 +144,7 @@ export async function PUT(
         read_time: readTime,
         image,
         featured,
-        docx_path: docxPath || null,
+        docx_path: null,
       })
       .eq('id', id)
       .select('*')
