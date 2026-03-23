@@ -36,13 +36,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const force = req.nextUrl.searchParams.get('force') === '1';
+  const sessionParam = req.nextUrl.searchParams.get('session');
+
   const now = new Date();
   const utcDay = now.getUTCDay();
   const utcHour = now.getUTCHours();
   const utcMinute = now.getUTCMinutes();
 
   // GitHub Actions cron can be delayed a few minutes; accept first 10 minutes of the hour.
-  if (utcMinute > 10) {
+  if (!force && utcMinute > 10) {
     return NextResponse.json({
       ok: true,
       sent: 0,
@@ -52,18 +55,21 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  const openingNow = SESSION_ALERTS.filter(
-    (s) => s.openUtc === utcHour && s.activeDaysUtc.includes(utcDay)
-  );
+  const openingNow = force
+    ? SESSION_ALERTS.filter((s) => (sessionParam ? s.id === sessionParam : true))
+    : SESSION_ALERTS.filter((s) => s.openUtc === utcHour && s.activeDaysUtc.includes(utcDay));
 
   if (!openingNow.length) {
     return NextResponse.json({
       ok: true,
       sent: 0,
-      reason: 'No sessions opening at this time',
+      reason: force
+        ? 'No matching session id found for force mode'
+        : 'No sessions opening at this time',
       utcDay,
       utcHour,
       utcMinute,
+      ...(force && sessionParam ? { session: sessionParam } : {}),
     });
   }
 
@@ -85,6 +91,8 @@ export async function GET(req: NextRequest) {
     ok: true,
     sent,
     attempted: results.length,
+    force,
+    ...(sessionParam ? { session: sessionParam } : {}),
     results,
   });
 }
