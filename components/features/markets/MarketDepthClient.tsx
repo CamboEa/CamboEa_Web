@@ -40,7 +40,7 @@ function MyfxbookForexRatesWidget({ height = 430 }: { height?: number }) {
     <div className="space-y-2">
       <div style={{ height }}>
         <iframe
-          src="https://widget.myfxbook.com/widget/market-quotes.html?symbols=EURGBP,EURUSD,GBPJPY,GBPUSD,USDJPY,XAGAUD,XAUUSD"
+          src="https://widget.myfxbook.com/widget/market-quotes.html?symbols=XAUUSD,XAGAUD,EURGBP,EURUSD,GBPJPY,GBPUSD,USDJPY"
           style={{ border: 0, width: '100%', height: '100%' }}
           title="Forex Rates"
           loading="lazy"

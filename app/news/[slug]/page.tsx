@@ -66,10 +66,6 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
 
   const relatedArticles = await getRelatedArticles(article, 3);
 
-  const getCategoryColor = (category: string) => {
-    return category === 'crypto' ? 'bg-orange-500' : 'bg-green-500';
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('km-KH', {
       weekday: 'long',
@@ -83,13 +79,26 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Content */}
       <section className="py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div>
-            {/* Main Content */}
-            <div className="max-w-3xl rounded-2xl border border-gray-200 bg-white p-5 sm:p-8 dark:border-gray-700 dark:bg-gray-800">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Main Content */}
+          <div className="max-w-3xl mx-auto">
+            <article>
+              {/* Header */}
+              <header className="mb-8">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight">
+                  {article.title}
+                </h1>
+                <p className="mt-3 text-gray-600 dark:text-gray-400 leading-relaxed">
+                  {article.excerpt}
+                </p>
+                <p className="mt-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {formatDate(article.publishedAt)}
+                </p>
+              </header>
+
               {/* Featured Image */}
               {article.image && (
-                <div className="relative h-64 sm:h-96 overflow-hidden mb-8">
+                <div className="relative h-64 sm:h-96 overflow-hidden rounded-xl mb-8">
                   <NewsImage src={article.image} alt={article.title} fill className="object-cover" />
                 </div>
               )}
@@ -126,7 +135,24 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                     {article.content || article.excerpt}
                   </p>
                 )}
-              </div>            
+              </div>
+
+              {/* Tags */}
+              {article.tags.length > 0 && (
+                <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">ស្លាក</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {article.tags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-sm"
+                      >
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Impact */}
               {article.impact && (
@@ -138,8 +164,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                   <p className="text-amber-900 dark:text-amber-200 text-base leading-relaxed">{article.impact}</p>
                 </div>
               )}
-            </div>
-
+            </article>
           </div>
         </div>
       </section>
