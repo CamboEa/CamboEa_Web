@@ -1,7 +1,7 @@
 'use client';
-
-import React, { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   MyfxbookEconomicCalendarWidget,
   MyfxbookForexHeatmapWidget,
@@ -59,6 +59,8 @@ const MARKET_OPTIONS: { value: 'overview' | 'depth' | 'retailer' | 'calendar' | 
 type MarketsPageClientProps = { initialView?: 'overview' | 'retailer' | 'depth' | 'calendar' | 'volatility' };
 
 export function MarketsPageClient({ initialView = 'overview' }: MarketsPageClientProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [view, setView] = useState<ViewMode>(initialView);
   const [dropdownValue, setDropdownValue] = useState<'overview' | 'depth' | 'retailer' | 'calendar' | 'volatility'>(initialView);
   const [overviewQuery, setOverviewQuery] = useState('');
@@ -80,7 +82,10 @@ export function MarketsPageClient({ initialView = 'overview' }: MarketsPageClien
   const setViewTo = useCallback((v: ViewMode) => {
     setDropdownValue(v);
     setView(v);
-  }, []);
+
+    const nextUrl = v === 'overview' ? pathname : `${pathname}?view=${v}`;
+    router.replace(nextUrl, { scroll: false });
+  }, [pathname, router]);
 
   return (
     <div className="flex flex-col gap-0">

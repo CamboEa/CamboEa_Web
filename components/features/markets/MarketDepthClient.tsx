@@ -74,7 +74,6 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const lastToastErrorRef = useRef<string | null>(null);
-  const [showHelpPopup, setShowHelpPopup] = useState(false);
 
   const handleMarketDropdownChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value as 'overview' | 'depth' | 'retailer';
@@ -242,65 +241,29 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
             ធ្វើឱ្យស្រស់រាល់ ៥ វិនាទី
           </span>
         )}
-        <button
-          type="button"
-          onClick={() => setShowHelpPopup(true)}
-          className="shrink-0 w-7 h-7 rounded-full border border-blue-300 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 flex items-center justify-center hover:bg-blue-100 dark:hover:bg-blue-800/50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          aria-label="តើ Level 1 និង Level 2 មានប្រយោជន៍យ៉ាងដូចម្តេច?"
-        >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden>
-            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-          </svg>
-        </button>
       </div>
-
-      {/* Help popup */}
-      {showHelpPopup && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
-          onClick={() => setShowHelpPopup(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="help-popup-title"
-        >
-          <div
-            className="rounded-xl border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 shadow-xl max-w-lg w-full max-h-[85vh] overflow-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/30 flex items-center justify-between">
-              <h3 id="help-popup-title" className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                តើ Level 1 និង Level 2 មានប្រយោជន៍យ៉ាងដូចម្តេច? (How is this useful?)
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowHelpPopup(false)}
-                className="p-1 rounded text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                aria-label="បិទ"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="p-4 grid sm:grid-cols-2 gap-6 text-sm">
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white mb-1.5">Level 1 — តម្លៃដេញថ្លៃ / យល់ព្រម / ថ្លៃចុងក្រោយ</p>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  បង្ហាញតម្លៃដេញថ្លៃ (Bid) និងយល់ព្រម (Ask) ល្អបំផុត រួមទាំងថ្លៃចុងក្រោយ និងចន្លោះ (Spread)។
-                  ជួយអ្នកវាយតម្លៃថ្លៃធ្វើដំណើរ ពេលវេលាចូល–ចេញដែលសមរម្យ និងថ្លៃដែលទីផ្សារពិតជាធ្វើដំណើរនៅពេលនេះ។
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-gray-900 dark:text-white mb-1.5">Level 2 — ជម្រៅទីផ្សារ (Order Book)</p>
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                  បង្ហាញបញ្ជីដេញថ្លៃ និងយល់ព្រមជាច្រើនកម្រិត។
-                  ជួយអ្នកមើលថាមានការគាំទ្រ ឬការទប់ទល់នៅតម្លៃណា តើមានសារៈសំខាន់ប៉ុណ្ណានៅជិតតម្លៃបច្ចុប្បន្ន និងធ្វើឱ្យអ្នករៀបចំការចូល–ចេញឱ្យប្រសើរ។
-                </p>
-              </div>
-            </div>
+      {/* Help frame (always visible) */}
+      <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/70 dark:bg-blue-900/20 p-4">
+        <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3">
+          ព័ត៌មាននេះជួយ Trade របៀបណា?
+        </h3>
+        <div className="grid sm:grid-cols-2 gap-6 text-sm">
+          <div>
+            <p className="font-medium text-gray-900 dark:text-white mb-1.5">Level 1 — តម្លៃដេញថ្លៃ / យល់ព្រម / ថ្លៃចុងក្រោយ</p>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              បង្ហាញតម្លៃដេញថ្លៃ (Bid) និងយល់ព្រម (Ask) ល្អបំផុត រួមទាំងថ្លៃចុងក្រោយ និងចន្លោះ (Spread)។
+              ជួយអ្នកវាយតម្លៃថ្លៃធ្វើដំណើរ ពេលវេលាចូល-ចេញដែលសមរម្យ និងថ្លៃដែលទីផ្សារពិតជាធ្វើដំណើរនៅពេលនេះ។
+            </p>
+          </div>
+          <div>
+            <p className="font-medium text-gray-900 dark:text-white mb-1.5">Level 2 — ជម្រៅទីផ្សារ (Order Book)</p>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              បង្ហាញបញ្ជីដេញថ្លៃ និងយល់ព្រមជាច្រើនកម្រិត។
+              ជួយអ្នកមើលថាមានការគាំទ្រ ឬការទប់ទល់នៅតម្លៃណា តើមានសារៈសំខាន់ប៉ុណ្ណានៅជិតតម្លៃបច្ចុប្បន្ន និងធ្វើឱ្យអ្នករៀបចំការចូល-ចេញឱ្យប្រសើរ។
+            </p>
           </div>
         </div>
-      )}
+      </div>
                    {/* Level 1 */}
                    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">

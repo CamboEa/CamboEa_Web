@@ -27,7 +27,7 @@ interface MyfxbookForexHeatmapWidgetProps extends MyfxbookWidgetBaseProps {}
 
 export const MyfxbookForexHeatmapWidget = memo(function MyfxbookForexHeatmapWidget({
   height = 480,
-  refreshIntervalMs = 30_000,
+  refreshIntervalMs = 5_000,
 }: MyfxbookForexHeatmapWidgetProps) {
   const refreshTick = useRefreshTick(refreshIntervalMs);
   const iframeSrc = `https://widgets.myfxbook.com/widgets/heat-map.html?symbols=17,7,1,4,2,3,50,51&type=0&_rt=${refreshTick}`;

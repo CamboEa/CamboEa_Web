@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { href: '/news', label: 'ព័ត៌មាន' },
   { href: '/markets', label: 'ទីផ្សារ' },
   { href: '/calendar', label: 'ប្រតិទិនសេដ្ឋកិច្ច' },
-  { href: '/analysis', label: 'ការវិភាគ' },
+  // { href: '/analysis', label: 'ការវិភាគ' },
   { href: '/ea-trading-bot', label: 'Tools' },
 ];
 const MORE_LINKS = [

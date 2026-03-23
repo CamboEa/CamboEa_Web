@@ -11,6 +11,11 @@ on:
     # New York + overlap open (UTC): Mon-Fri 13:00
     - cron: "0 13 * * 1-5"
   workflow_dispatch:
+    inputs:
+      session:
+        description: Session id to send (sydney, asian, london, newyork, london-ny-overlap). Leave empty for auto by cron.
+        required: false
+        type: string
 
 jobs:
   notify:
@@ -20,13 +25,41 @@ jobs:
         env:
           APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
           SESSION_ALERT_CRON_SECRET: ${{ secrets.SESSION_ALERT_CRON_SECRET }}
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_SCHEDULE: ${{ github.event.schedule }}
+          DISPATCH_SESSION: ${{ inputs.session }}
         run: |
           if [ -z "$APP_BASE_URL" ] || [ -z "$SESSION_ALERT_CRON_SECRET" ]; then
             echo "Missing APP_BASE_URL or SESSION_ALERT_CRON_SECRET secret"
             exit 1
           fi
 
-          curl --fail --silent --show-error \
-            --request GET \
-            --header "x-cron-secret: $SESSION_ALERT_CRON_SECRET" \
-            "$APP_BASE_URL/api/cron/session-open"
+          sessions=""
+          case "$EVENT_SCHEDULE" in
+            "0 22 * * 0-4") sessions="sydney" ;;
+            "0 0 * * 1-5") sessions="asian" ;;
+            "0 8 * * 1-5") sessions="london" ;;
+            "0 13 * * 1-5") sessions="newyork london-ny-overlap" ;;
+          esac
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$DISPATCH_SESSION" ]; then
+            sessions="$DISPATCH_SESSION"
+          fi
+
+          if [ -z "$sessions" ]; then
+            echo "No session mapping found for EVENT_SCHEDULE='$EVENT_SCHEDULE'; falling back to non-force endpoint."
+            curl --fail --silent --show-error \
+              --request GET \
+              --header "x-cron-secret: $SESSION_ALERT_CRON_SECRET" \
+              "$APP_BASE_URL/api/cron/session-open"
+            exit 0
+          fi
+
+          for session in $sessions; do
+            echo "Triggering force alert for session: $session"
+            curl --fail --silent --show-error \
+              --request GET \
+              --header "x-cron-secret: $SESSION_ALERT_CRON_SECRET" \
+              "$APP_BASE_URL/api/cron/session-open?force=1&session=$session"
+            echo ""
+          done

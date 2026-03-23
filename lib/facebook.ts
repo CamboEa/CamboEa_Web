@@ -31,7 +31,7 @@ function buildMessage({ title, excerpt, impact, articleUrl }: {
     parts.push('', `ផលប៉ះពាល់: ${impact}`);
   }
 
-  parts.push('', `អានបន្ថែម: ${articleUrl}`);
+  parts.push('', 'អានបន្ថែមនៅ CamboEA 👇');
   return parts.join('\n');
 }
 
@@ -51,25 +51,8 @@ export async function sendNewsToFacebook({
   const message = buildMessage({ title, excerpt, impact, articleUrl });
 
   try {
-    if (image) {
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cambo-ea-web.vercel.app';
-      const imageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
-      const params = new URLSearchParams({
-        url: imageUrl,
-        caption: message,
-        access_token: FACEBOOK_PAGE_ACCESS_TOKEN,
-      });
-      const photoRes = await fetch(`${GRAPH_BASE}/${FACEBOOK_PAGE_ID}/photos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params.toString(),
-      });
-
-      if (photoRes.ok) return true;
-      console.warn('Facebook photo post failed, fallback to feed:', await photoRes.text());
-    }
-
-    const params = new URLSearchParams({
+    // Prefer /feed link posts so Facebook renders the large link preview card.
+    const feedParams = new URLSearchParams({
       message,
       link: articleUrl,
       access_token: FACEBOOK_PAGE_ACCESS_TOKEN,
@@ -77,15 +60,34 @@ export async function sendNewsToFacebook({
     const feedRes = await fetch(`${GRAPH_BASE}/${FACEBOOK_PAGE_ID}/feed`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: params.toString(),
+      body: feedParams.toString(),
     });
 
-    if (!feedRes.ok) {
-      console.error('Facebook feed post failed:', await feedRes.text());
+    if (feedRes.ok) {
+      return true;
+    }
+
+    // Fallback to photo post only if feed+link fails.
+    if (image) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://cambo-ea-web.vercel.app';
+      const imageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
+      const photoParams = new URLSearchParams({
+        url: imageUrl,
+        caption: `${message}\n${articleUrl}`,
+        access_token: FACEBOOK_PAGE_ACCESS_TOKEN,
+      });
+      const photoRes = await fetch(`${GRAPH_BASE}/${FACEBOOK_PAGE_ID}/photos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: photoParams.toString(),
+      });
+      if (photoRes.ok) return true;
+      console.error('Facebook feed and photo fallback both failed:', await photoRes.text());
       return false;
     }
 
-    return true;
+    console.error('Facebook feed post failed:', await feedRes.text());
+    return false;
   } catch (err) {
     console.error('Facebook post error:', err);
     return false;
