@@ -13,12 +13,11 @@ const NAV_LINKS = [
   { href: '/analysis', label: 'ការវិភាគ' },
   { href: '/ea-trading-bot', label: 'Tools' },
 ];
-
 const MORE_LINKS = [
-  { href: '/about', label: 'អំពីយើង' },
-  { href: '/contact', label: 'ទំនាក់ទំនង' },
-  { href: '/subscribe', label: 'តាមដាន' },
   { href: '/lesson', label: 'មេរៀនអំពី Forex' },
+  { href: '/contact', label: 'ទំនាក់ទំនង' },
+  { href: '/about', label: 'អំពីយើង' },
+  { href: '/subscribe', label: 'តាមដាន' },
 ];
 
 export const Header = () => {
@@ -89,7 +88,7 @@ export const Header = () => {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 ${
                   pathname === link.href
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -102,7 +101,7 @@ export const Header = () => {
               <button
                 type="button"
                 onClick={() => setIsMoreOpen((prev) => !prev)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all inline-flex items-center gap-1 ${
+                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 ${
                   MORE_LINKS.some((link) => pathname === link.href) || isMoreOpen
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -110,7 +109,7 @@ export const Header = () => {
                 aria-haspopup="menu"
                 aria-expanded={isMoreOpen}
               >
-                More
+                បន្ថែម
                 <svg
                   className={`w-4 h-4 transition-transform ${isMoreOpen ? 'rotate-180' : ''}`}
                   fill="none"
@@ -129,7 +128,7 @@ export const Header = () => {
                     <Link
                       key={link.href}
                       href={link.href}
-                      className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`block px-3 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 ${
                         pathname === link.href
                           ? 'bg-blue-600 text-white'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -147,7 +146,7 @@ export const Header = () => {
           <div className="flex items-center gap-3">
             {/* Search Button */}
             <button
-              className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="ui-icon-button p-2"
               aria-label="ស្វែងរក"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,7 +167,7 @@ export const Header = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="ui-icon-button lg:hidden p-2"
               aria-label="បើក/បិទម៉ឺនុយ"
             >
               {isMobileMenuOpen ? (
@@ -203,7 +202,7 @@ export const Header = () => {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  className={`px-4 py-2 rounded-xl text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 ${
                     pathname === link.href
                       ? 'bg-blue-600 text-white'
                       : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -215,10 +214,10 @@ export const Header = () => {
               <button
                 type="button"
                 onClick={() => setIsMobileMoreOpen((prev) => !prev)}
-                className="px-4 py-2 rounded-lg text-sm font-medium transition-all text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center justify-between"
+                className="px-4 py-2 rounded-xl text-sm font-medium transition-all text-left text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 inline-flex items-center justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
                 aria-expanded={isMobileMoreOpen}
               >
-                More pages
+                ទំព័របន្ថែម
                 <svg
                   className={`w-4 h-4 transition-transform ${isMobileMoreOpen ? 'rotate-180' : ''}`}
                   fill="none"
@@ -235,7 +234,7 @@ export const Header = () => {
                       key={link.href}
                       href={link.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                      className={`block px-4 py-2 rounded-lg text-sm font-medium transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 ${
                         pathname === link.href
                           ? 'bg-blue-600 text-white'
                           : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'

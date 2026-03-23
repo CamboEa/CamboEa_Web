@@ -21,7 +21,9 @@ export function ClientShell({ children }: { children: React.ReactNode }) {
           </section>
         </>
       )}
-      {children}
+      <div key={pathname} className="animate-fade-in">
+        {children}
+      </div>
       {/* {!isAdmin && <Footer />} */}
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar />
     </>

@@ -61,7 +61,7 @@ export default function SubscribePage() {
               href={item.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-shadow p-6"
+              className="group bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all p-6 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
             >
               <div className="flex items-start justify-between gap-4">
                 <div>

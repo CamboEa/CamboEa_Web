@@ -392,6 +392,71 @@ html {
    INTERACTIVE HOVER EFFECTS
    ============================================ */
 
+/* Shared control styles for consistent inputs/buttons across pages */
+.ui-control {
+  border-radius: 0.75rem;
+  border: 1px solid rgb(209 213 219);
+  background: rgb(255 255 255);
+  color: rgb(17 24 39);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.ui-control::placeholder {
+  color: rgb(107 114 128);
+}
+
+.ui-control:focus {
+  outline: none;
+  border-color: rgb(59 130 246);
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.25);
+}
+
+.dark .ui-control {
+  border-color: rgb(75 85 99);
+  background: rgb(31 41 55);
+  color: rgb(243 244 246);
+}
+
+.dark .ui-control::placeholder {
+  color: rgb(156 163 175);
+}
+
+.ui-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.625rem;
+  color: rgb(75 85 99);
+  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.ui-icon-button:hover {
+  background: rgb(243 244 246);
+}
+
+.ui-icon-button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(59 130 246 / 0.3);
+}
+
+.dark .ui-icon-button {
+  color: rgb(156 163 175);
+}
+
+.dark .ui-icon-button:hover {
+  background: rgb(31 41 55);
+}
+
+.ui-action-button {
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
 /* Card hover with lift */
 .hover-lift {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

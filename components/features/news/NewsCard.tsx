@@ -15,26 +15,26 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
       <Link href={`/news/${article.slug}`} className="group block">
         <article className="grid md:grid-cols-5 gap-6 items-start">
           <div className="md:col-span-3 py-1">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white leading-tight mb-4 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
+            <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight mb-4 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
               {article.title}
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 text-[15px] leading-relaxed line-clamp-4 mb-4">
+            <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed line-clamp-4 mb-4">
               {article.excerpt}
             </p>
             <div className="text-sm text-gray-500 dark:text-gray-400 space-y-1">
               {article.impact && (
                 <p>ផលប៉ះពាល់: {article.impact}</p>
               )}
-              <p className="text-gray-900 dark:text-white mt-10 font-bold">{new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-8 font-semibold">{new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
             </div>
           </div>
-          <div className="md:col-span-2 relative aspect-4/3 overflow-hidden">
+          <div className="md:col-span-2 relative aspect-4/3 overflow-hidden rounded-xl">
             {article.image ? (
               <NewsImage 
                 src={article.image}
                 alt={article.title}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               />
             ) : (
               <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700" />
@@ -50,13 +50,13 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
     return (
       <Link href={`/news/${article.slug}`} className="group block">
         <article>
-          <div className="relative aspect-3/2 overflow-hidden mb-3">
+          <div className="relative aspect-3/2 overflow-hidden rounded-xl mb-3">
             {article.image ? (
               <NewsImage
                 src={article.image}
                 alt={article.title}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               />
             ) : (
               <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700" />
@@ -68,7 +68,7 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
           <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2 mt-2">
             {article.excerpt}
           </p>
-          <p className="text-xs text-gray-900 dark:text-white mt-2 font-semibold">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 font-semibold">
             {new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}
           </p>
         </article>
@@ -81,13 +81,13 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
     return (
       <Link href={`/news/${article.slug}`} className="group block">
         <article>
-          <div className="relative aspect-video overflow-hidden mb-2">
+          <div className="relative aspect-video overflow-hidden rounded-xl mb-2">
             {article.image ? (
               <NewsImage
                 src={article.image}
                 alt={article.title}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               />
             ) : (
               <div className="absolute inset-0 bg-gray-200 dark:bg-gray-700" />
@@ -99,7 +99,7 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
           <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mt-1">
             {article.excerpt}
           </p>
-          <p className="text-xs text-gray-900 dark:text-white mt-1.5 font-semibold">
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1.5 font-semibold">
             {new Date(article.publishedAt).toLocaleDateString('km-KH', { year: 'numeric', month: 'short', day: 'numeric' })}
           </p>
         </article>
@@ -129,15 +129,15 @@ export const NewsCard = ({ article, variant = 'default' }: NewsCardProps) => {
       <Link href={`/news/${article.slug}`} className="group block">
         <article className="flex gap-4 items-start">
           {article.image && (
-            <div className="shrink-0 w-24 h-24 overflow-hidden relative">
-            <NewsImage
+            <div className="shrink-0 w-24 h-24 overflow-hidden relative rounded-lg">
+              <NewsImage
                 src={article.image}
                 alt={article.title}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
               />
-          </div>
-        )}
+            </div>
+          )}
           <div className="flex-1 min-w-0 py-0.5">
             <h3 className="font-semibold text-gray-900 dark:text-white text-sm leading-snug line-clamp-3 group-hover:text-blue-700 dark:group-hover:text-blue-400 transition-colors">
               {article.title}

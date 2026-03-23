@@ -1,7 +1,7 @@
 'use client';
 
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { useInView, widgetCache, WidgetSkeleton } from './widgetShared';
+import { useInView, WidgetSkeleton } from './widgetShared';
 
 interface TradingViewWidgetProps {
   symbol: string;
@@ -17,13 +17,13 @@ export const TradingViewWidget = memo(function TradingViewWidget({
   const container = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const { ref: viewRef, inView } = useInView();
-  const widgetId = `chart-${symbol}`;
-  const isCached = widgetCache.get(widgetId) === true;
-  const loaded = isLoaded || isCached;
 
   useEffect(() => {
     if (!inView || !container.current) return;
-    if (widgetCache.get(widgetId)) return;
+    let cancelled = false;
+
+    setIsLoaded(false);
+    container.current.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
@@ -45,18 +45,22 @@ export const TradingViewWidget = memo(function TradingViewWidget({
     });
 
     script.onload = () => {
-      setIsLoaded(true);
-      widgetCache.set(widgetId, true);
+      if (!cancelled) setIsLoaded(true);
     };
 
     container.current.appendChild(script);
-  }, [symbol, height, autosize, inView, widgetId]);
+
+    return () => {
+      cancelled = true;
+      if (container.current) container.current.innerHTML = '';
+    };
+  }, [symbol, height, autosize, inView]);
 
   return (
     <div ref={viewRef} style={{ minHeight: height }}>
-      {!loaded && <WidgetSkeleton height={height} />}
+      {!isLoaded && <WidgetSkeleton height={height} />}
       <div
-        className={`tradingview-widget-container transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0 absolute'}`}
+        className={`tradingview-widget-container transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0 absolute'}`}
         ref={container}
         style={{ height }}
       >
@@ -69,11 +73,13 @@ export const TradingViewWidget = memo(function TradingViewWidget({
 export const TradingViewTicker = memo(function TradingViewTicker() {
   const container = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const initialized = useRef(false);
 
   useEffect(() => {
-    if (!container.current || initialized.current) return;
-    initialized.current = true;
+    if (!container.current) return;
+    let cancelled = false;
+
+    setIsLoaded(false);
+    container.current.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
@@ -106,8 +112,15 @@ export const TradingViewTicker = memo(function TradingViewTicker() {
       locale: 'en',
     });
 
-    script.onload = () => setIsLoaded(true);
+    script.onload = () => {
+      if (!cancelled) setIsLoaded(true);
+    };
     container.current.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      if (container.current) container.current.innerHTML = '';
+    };
   }, []);
 
   return (
@@ -146,13 +159,13 @@ export const TradingViewHeatmap = memo(function TradingViewHeatmap({
   const container = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const { ref: viewRef, inView } = useInView();
-  const widgetId = `heatmap-${type}`;
-  const isCached = widgetCache.get(widgetId) === true;
-  const loaded = isLoaded || isCached;
 
   useEffect(() => {
     if (!inView || !container.current) return;
-    if (widgetCache.get(widgetId)) return;
+    let cancelled = false;
+
+    setIsLoaded(false);
+    container.current.innerHTML = '';
 
     const script = document.createElement('script');
 
@@ -187,18 +200,22 @@ export const TradingViewHeatmap = memo(function TradingViewHeatmap({
     script.type = 'text/javascript';
     script.async = true;
     script.onload = () => {
-      setIsLoaded(true);
-      widgetCache.set(widgetId, true);
+      if (!cancelled) setIsLoaded(true);
     };
 
     container.current.appendChild(script);
-  }, [type, height, inView, widgetId]);
+
+    return () => {
+      cancelled = true;
+      if (container.current) container.current.innerHTML = '';
+    };
+  }, [type, height, inView]);
 
   return (
     <div ref={viewRef} style={{ minHeight: height }}>
-      {!loaded && <WidgetSkeleton height={height} />}
+      {!isLoaded && <WidgetSkeleton height={height} />}
       <div
-        className={`tradingview-widget-container transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0 absolute'}`}
+        className={`tradingview-widget-container transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0 absolute'}`}
         ref={container}
         style={{ height }}
       >
@@ -225,6 +242,10 @@ export const TradingViewMiniChart = memo(function TradingViewMiniChart({
 
   useEffect(() => {
     if (!inView || !container.current) return;
+    let cancelled = false;
+
+    setIsLoaded(false);
+    container.current.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
@@ -242,8 +263,15 @@ export const TradingViewMiniChart = memo(function TradingViewMiniChart({
       largeChartUrl: '',
     });
 
-    script.onload = () => setIsLoaded(true);
+    script.onload = () => {
+      if (!cancelled) setIsLoaded(true);
+    };
     container.current.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      if (container.current) container.current.innerHTML = '';
+    };
   }, [symbol, width, height, inView]);
 
   return (
@@ -274,13 +302,13 @@ export const TradingViewTechnicalHeatmap = memo(function TradingViewTechnicalHea
   const container = useRef<HTMLDivElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const { ref: viewRef, inView } = useInView();
-  const widgetId = `ta-${symbol}-${interval}`;
-  const isCached = widgetCache.get(widgetId) === true;
-  const loaded = isLoaded || isCached;
 
   useEffect(() => {
     if (!inView || !container.current) return;
-    if (widgetCache.get(widgetId)) return;
+    let cancelled = false;
+
+    setIsLoaded(false);
+    container.current.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
@@ -299,18 +327,22 @@ export const TradingViewTechnicalHeatmap = memo(function TradingViewTechnicalHea
     });
 
     script.onload = () => {
-      setIsLoaded(true);
-      widgetCache.set(widgetId, true);
+      if (!cancelled) setIsLoaded(true);
     };
 
     container.current.appendChild(script);
-  }, [height, inView, interval, symbol, widgetId]);
+
+    return () => {
+      cancelled = true;
+      if (container.current) container.current.innerHTML = '';
+    };
+  }, [height, inView, interval, symbol]);
 
   return (
     <div ref={viewRef} style={{ minHeight: height }}>
-      {!loaded && <WidgetSkeleton height={height} />}
+      {!isLoaded && <WidgetSkeleton height={height} />}
       <div
-        className={`tradingview-widget-container transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0 absolute'}`}
+        className={`tradingview-widget-container transition-opacity duration-300 ${isLoaded ? 'opacity-100' : 'opacity-0 absolute'}`}
         ref={container}
         style={{ height }}
       >
@@ -348,6 +380,10 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
 
   useEffect(() => {
     if (!inView || !container.current) return;
+    let cancelled = false;
+
+    setIsLoaded(false);
+    container.current.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js';
@@ -408,8 +444,15 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
       ],
     });
 
-    script.onload = () => setIsLoaded(true);
+    script.onload = () => {
+      if (!cancelled) setIsLoaded(true);
+    };
     container.current.appendChild(script);
+
+    return () => {
+      cancelled = true;
+      if (container.current) container.current.innerHTML = '';
+    };
   }, [effectiveHeight, inView]);
 
   return (

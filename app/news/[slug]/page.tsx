@@ -83,21 +83,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Content */}
       <section className="py-12">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div>
             {/* Main Content */}
-            <div className="max-w-3xl">
-              {/* Impact */}
-              {article.impact && (
-                <div className="mb-8 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20 rounded-r-lg p-5">
-                  <div className="flex items-center gap-2 mb-2">
-                    <HiOutlineChartBar className="text-amber-600 dark:text-amber-400 text-xl" />
-                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm uppercase tracking-wide">ផលប៉ះពាល់</h3>
-                  </div>
-                  <p className="text-amber-900 dark:text-amber-200 text-base leading-relaxed">{article.impact}</p>
-                </div>
-              )}
-
+            <div className="max-w-3xl rounded-2xl border border-gray-200 bg-white p-5 sm:p-8 dark:border-gray-700 dark:bg-gray-800">
               {/* Featured Image */}
               {article.image && (
                 <div className="relative h-64 sm:h-96 overflow-hidden mb-8">
@@ -137,22 +126,18 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                     {article.content || article.excerpt}
                   </p>
                 )}
-              </div>
+              </div>            
 
-              {/* Tags */}
-              <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">ស្លាក</h3>
-                <div className="flex flex-wrap gap-2">
-                  {article.tags.map(tag => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-sm"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+              {/* Impact */}
+              {article.impact && (
+                <div className="mt-8 border-l-4 border-amber-500 bg-amber-50 dark:bg-amber-900/20 rounded-r-lg p-5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <HiOutlineChartBar className="text-amber-600 dark:text-amber-400 text-xl" />
+                    <h3 className="font-bold text-amber-800 dark:text-amber-300 text-sm uppercase tracking-wide">ផលប៉ះពាល់</h3>
+                  </div>
+                  <p className="text-amber-900 dark:text-amber-200 text-base leading-relaxed">{article.impact}</p>
                 </div>
-              </div>
+              )}
             </div>
 
           </div>

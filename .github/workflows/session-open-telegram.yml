@@ -1,0 +1,32 @@
+name: Session Open Telegram Alerts
+
+on:
+  schedule:
+    # Sydney open (UTC): Sun-Thu 22:00
+    - cron: "0 22 * * 0-4"
+    # Asian open (UTC): Mon-Fri 00:00
+    - cron: "0 0 * * 1-5"
+    # London open (UTC): Mon-Fri 08:00
+    - cron: "0 8 * * 1-5"
+    # New York + overlap open (UTC): Mon-Fri 13:00
+    - cron: "0 13 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger session-open alert endpoint
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          SESSION_ALERT_CRON_SECRET: ${{ secrets.SESSION_ALERT_CRON_SECRET }}
+        run: |
+          if [ -z "$APP_BASE_URL" ] || [ -z "$SESSION_ALERT_CRON_SECRET" ]; then
+            echo "Missing APP_BASE_URL or SESSION_ALERT_CRON_SECRET secret"
+            exit 1
+          fi
+
+          curl --fail --silent --show-error \
+            --request GET \
+            --header "x-cron-secret: $SESSION_ALERT_CRON_SECRET" \
+            "$APP_BASE_URL/api/cron/session-open"
