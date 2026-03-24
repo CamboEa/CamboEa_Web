@@ -2,6 +2,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import { NewsArticle, NewsCategory, NewsFilters } from '@/types';
+import { mapNewsRowToArticle, NEWS_SELECT_COLUMNS, type NewsRow } from '@/lib/news/news-row';
 
 // World news that impacts currencies, gold, and crypto (fallback when no data file)
 export const SAMPLE_NEWS: NewsArticle[] = [
@@ -229,9 +230,7 @@ async function fetchNewsFromSupabase(): Promise<NewsArticle[] | null> {
 
   const { data, error } = await supabase
     .from('news')
-    .select(
-      'id, slug, title, excerpt, content, impact, category, tags, author_name, published_at, updated_at, read_time, image, featured, prediction, docx_path'
-    )
+    .select(NEWS_SELECT_COLUMNS)
     .order('published_at', { ascending: false });
 
   if (error || !data) {
@@ -239,26 +238,7 @@ async function fetchNewsFromSupabase(): Promise<NewsArticle[] | null> {
     return null;
   }
 
-  return data.map((row: any): NewsArticle => ({
-    id: row.id,
-    slug: row.slug,
-    title: row.title,
-    excerpt: row.excerpt,
-    content: row.content ?? '',
-    impact: row.impact ?? undefined,
-    category: row.category as NewsCategory,
-    tags: Array.isArray(row.tags) ? row.tags : [],
-    author: {
-      name: row.author_name ?? 'Admin',
-    },
-    publishedAt: row.published_at,
-    updatedAt: row.updated_at ?? undefined,
-    readTime: row.read_time ?? '៥ នាទីអាន',
-    image: row.image ?? undefined,
-    featured: !!row.featured,
-    prediction: row.prediction ?? undefined,
-    docxPath: row.docx_path ?? undefined,
-  }));
+  return data.map((rawRow): NewsArticle => mapNewsRowToArticle(rawRow as NewsRow));
 }
 
 // Get current articles (from Supabase or fallback to sample)
@@ -276,8 +256,6 @@ export async function getCurrentArticles(): Promise<NewsArticle[]> {
 
 // Get all news articles with optional filtering
 export async function getNewsArticles(filters?: NewsFilters): Promise<NewsArticle[]> {
-  await new Promise(resolve => setTimeout(resolve, 50));
-
   let articles = await getCurrentArticles();
 
   if (filters?.category) {
@@ -321,33 +299,12 @@ export async function getArticleBySlug(slug: string): Promise<NewsArticle | null
   if (supabase) {
     const { data, error } = await supabase
       .from('news')
-      .select(
-        'id, slug, title, excerpt, content, impact, category, tags, author_name, published_at, updated_at, read_time, image, featured, prediction, docx_path'
-      )
+      .select(NEWS_SELECT_COLUMNS)
       .eq('slug', slug)
       .maybeSingle();
 
     if (!error && data) {
-      return {
-        id: data.id,
-        slug: data.slug,
-        title: data.title,
-        excerpt: data.excerpt,
-        content: data.content ?? '',
-        impact: data.impact ?? undefined,
-        category: data.category as NewsCategory,
-        tags: Array.isArray(data.tags) ? data.tags : [],
-        author: {
-          name: data.author_name ?? 'Admin',
-        },
-        publishedAt: data.published_at,
-        updatedAt: data.updated_at ?? undefined,
-        readTime: data.read_time ?? '៥ នាទីអាន',
-        image: data.image ?? undefined,
-        featured: !!data.featured,
-        prediction: data.prediction ?? undefined,
-        docxPath: data.docx_path ?? undefined,
-      };
+      return mapNewsRowToArticle(data as NewsRow);
     }
   }
 

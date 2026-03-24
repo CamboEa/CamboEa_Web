@@ -46,7 +46,7 @@ export default function AdminLoginPage() {
 
       router.push('/admin');
       router.refresh();
-    } catch (err) {
+    } catch {
       setMessage('មានបញ្ហាក្នុងការភ្ជាប់ទៅកាន់សេវា Supabase');
     } finally {
       setLoading(false);

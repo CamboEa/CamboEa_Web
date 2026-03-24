@@ -50,11 +50,6 @@ export const Header = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    setIsMoreOpen(false);
-    setIsMobileMoreOpen(false);
-  }, [pathname]);
-
   const handleSubscribeClick = () => {
     setIsMobileMenuOpen(false);
     router.push('/subscribe');

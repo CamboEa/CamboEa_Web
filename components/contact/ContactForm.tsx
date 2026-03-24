@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui';
+import { submitContactForm } from '@/lib/api/client';
 
 export function ContactForm() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -16,18 +17,12 @@ export function ContactForm() {
     setMessage('');
 
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.get('name'),
-          email: formData.get('email'),
-          subject: formData.get('subject'),
-          message: formData.get('message'),
-        }),
+      await submitContactForm({
+        name: String(formData.get('name') ?? ''),
+        email: String(formData.get('email') ?? ''),
+        subject: String(formData.get('subject') ?? ''),
+        message: String(formData.get('message') ?? ''),
       });
-
-      if (!res.ok) throw new Error('Failed to send');
       setStatus('success');
       setMessage('អរគុណ! យើងនឹងឆ្លើយតបឆាប់តាមអាចធ្វើបាន។');
       form.reset();

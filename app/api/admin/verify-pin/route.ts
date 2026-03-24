@@ -1,8 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { limitAdminPinVerify } from '@/lib/security/rate-limit';
 
 const ADMIN_PIN_VERIFIED_COOKIE = 'admin_pin_verified';
 
+function getIdentifier(request: NextRequest): string {
+  const forwardedFor = request.headers.get('x-forwarded-for') ?? '';
+  const ip = forwardedFor.split(',')[0]?.trim() || 'unknown-ip';
+  const ua = request.headers.get('user-agent') ?? 'unknown-ua';
+  return `${ip}:${ua}`;
+}
+
 export async function POST(request: NextRequest) {
+  const identifier = getIdentifier(request);
+  const rate = await limitAdminPinVerify(identifier);
+  if (!rate.success) {
+    return NextResponse.json(
+      {
+        ok: false,
+        message: 'ព្យាយាមច្រើនពេក។ សូមរង់ចាំបន្តិចហើយសាកម្ដងទៀត។',
+      },
+      {
+        status: 429,
+        headers: {
+          'Retry-After': String(Math.max(1, Math.ceil((rate.reset - Date.now()) / 1000))),
+        },
+      }
+    );
+  }
+
   const body = await request.json().catch(() => ({}));
   const pin = String(body.pin ?? '').trim();
 

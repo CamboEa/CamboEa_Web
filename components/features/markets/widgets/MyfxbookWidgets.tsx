@@ -23,12 +23,10 @@ function useRefreshTick(refreshIntervalMs: number) {
   return refreshTick;
 }
 
-interface MyfxbookForexHeatmapWidgetProps extends MyfxbookWidgetBaseProps {}
-
 export const MyfxbookForexHeatmapWidget = memo(function MyfxbookForexHeatmapWidget({
   height = 480,
   refreshIntervalMs = 5_000,
-}: MyfxbookForexHeatmapWidgetProps) {
+}: MyfxbookWidgetBaseProps) {
   const refreshTick = useRefreshTick(refreshIntervalMs);
   const iframeSrc = `https://widgets.myfxbook.com/widgets/heat-map.html?symbols=17,7,1,4,2,3,50,51&type=0&_rt=${refreshTick}`;
 
@@ -48,12 +46,10 @@ export const MyfxbookForexHeatmapWidget = memo(function MyfxbookForexHeatmapWidg
   );
 });
 
-interface MyfxbookVolatilityWidgetProps extends MyfxbookWidgetBaseProps {}
-
 export const MyfxbookVolatilityWidget = memo(function MyfxbookVolatilityWidget({
   height = 520,
   refreshIntervalMs = 30_000,
-}: MyfxbookVolatilityWidgetProps) {
+}: MyfxbookWidgetBaseProps) {
   const refreshTick = useRefreshTick(refreshIntervalMs);
   const iframeSrc = `https://widgets.myfxbook.com/widgets/market-volatility.html?symbols=51,50,17,7,1,4,2,3&type=0&_rt=${refreshTick}`;
 
@@ -73,12 +69,10 @@ export const MyfxbookVolatilityWidget = memo(function MyfxbookVolatilityWidget({
   );
 });
 
-interface MyfxbookEconomicCalendarWidgetProps extends MyfxbookWidgetBaseProps {}
-
 export const MyfxbookEconomicCalendarWidget = memo(function MyfxbookEconomicCalendarWidget({
   height = 620,
   refreshIntervalMs = 30_000,
-}: MyfxbookEconomicCalendarWidgetProps) {
+}: MyfxbookWidgetBaseProps) {
   const refreshTick = useRefreshTick(refreshIntervalMs);
   const iframeSrc = `https://widget.myfxbook.com/widget/calendar.html?lang=kh&impacts=0,1,2,3&countries=China,Japan,United%20Kingdom,United%20States&_rt=${refreshTick}`;
 

@@ -128,6 +128,12 @@ interface MarketBiasOverride {
   bias: Bias;
 }
 
+type MarketBiasDbRow = {
+  symbol: string;
+  category: string;
+  bias: string;
+};
+
 async function applyBiasOverrides(
   forex: MarketsPriceRow[],
   metals: MarketsPriceRow[]
@@ -144,14 +150,17 @@ async function applyBiasOverrides(
       return { forex, metals };
     }
 
-    const overrides: MarketBiasOverride[] = (data ?? []).map((row: any) => ({
-      symbol: String(row.symbol),
-      category: row.category === 'metals' ? 'metals' : 'forex',
+    const overrides: MarketBiasOverride[] = (data ?? []).map((row) => {
+      const item = row as MarketBiasDbRow;
+      return {
+      symbol: String(item.symbol),
+      category: item.category === 'metals' ? 'metals' : 'forex',
       bias:
-        row.bias === 'bullish' || row.bias === 'bearish' || row.bias === 'neutral'
-          ? (row.bias as Bias)
+        item.bias === 'bullish' || item.bias === 'bearish' || item.bias === 'neutral'
+          ? (item.bias as Bias)
           : 'neutral',
-    }));
+      };
+    });
 
     const bySymbol = new Map<string, Bias>();
     for (const o of overrides) {

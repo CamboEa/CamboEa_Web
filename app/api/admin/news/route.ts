@@ -4,10 +4,95 @@ import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { sendNewsToTelegram } from '@/lib/telegram';
 import { sendNewsToFacebook } from '@/lib/facebook';
 import { requireAdmin } from '@/lib/admin-auth';
+import { mapNewsRowToArticle, NEWS_SELECT_COLUMNS, type NewsRow } from '@/lib/news/news-row';
+
+type NewsCreateBody = {
+  title?: unknown;
+  slug?: unknown;
+  excerpt?: unknown;
+  content?: unknown;
+  impact?: unknown;
+  category?: unknown;
+  tags?: unknown;
+  authorName?: unknown;
+  author?: { name?: unknown } | null;
+  publishedAt?: unknown;
+  readTime?: unknown;
+  image?: unknown;
+  featured?: unknown;
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function parseOptionalString(value: unknown): string | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed ? trimmed : undefined;
+}
+
+function parseCreateBody(input: unknown): {
+  title: string;
+  slug?: string;
+  excerpt: string;
+  content?: string;
+  impact?: string;
+  category: NewsCategory;
+  tags: string[];
+  authorName: string;
+  publishedAt?: string;
+  readTime?: string;
+  image?: string;
+  featured: boolean;
+} {
+  if (!isRecord(input)) {
+    throw new Error('Invalid payload');
+  }
+
+  const title = parseOptionalString(input.title);
+  if (!title) throw new Error('ចំណងជើងត្រូវតែមាន');
+
+  const category: NewsCategory = input.category === 'forex' ? 'forex' : 'crypto';
+  const tags = Array.isArray(input.tags)
+    ? input.tags.filter((v): v is string => typeof v === 'string').map((v) => v.trim()).filter(Boolean)
+    : [];
+
+  const authorName = parseOptionalString(input.authorName)
+    ?? (isRecord(input.author) ? parseOptionalString(input.author.name) : undefined)
+    ?? 'Admin';
+
+  const rawPublishedAt = parseOptionalString(input.publishedAt);
+  let publishedAt: string | undefined;
+  if (rawPublishedAt) {
+    const parsed = new Date(rawPublishedAt);
+    if (Number.isNaN(parsed.getTime())) {
+      throw new Error('Invalid publishedAt date');
+    }
+    publishedAt = parsed.toISOString();
+  }
+
+  return {
+    title,
+    slug: parseOptionalString(input.slug),
+    excerpt: parseOptionalString(input.excerpt) ?? '',
+    content: parseOptionalString(input.content),
+    impact: parseOptionalString(input.impact),
+    category,
+    tags,
+    authorName,
+    publishedAt,
+    readTime: parseOptionalString(input.readTime),
+    image: parseOptionalString(input.image),
+    featured: Boolean(input.featured),
+  };
+}
 
 // GET /api/admin/news — list all articles (admin only)
-export async function GET(_request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
+    void request;
     const admin = await requireAdmin();
     if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -16,9 +101,7 @@ export async function GET(_request: NextRequest) {
     const supabase = getSupabaseAdminClient();
     const { data, error } = await supabase
       .from('news')
-      .select(
-        'id, slug, title, excerpt, content, impact, category, tags, author_name, published_at, updated_at, read_time, image, featured, prediction, docx_path'
-      )
+      .select(NEWS_SELECT_COLUMNS)
       .order('published_at', { ascending: false });
 
     if (error) {
@@ -26,26 +109,7 @@ export async function GET(_request: NextRequest) {
       return NextResponse.json({ error: 'Failed to load news' }, { status: 500 });
     }
 
-    const articles: NewsArticle[] = (data ?? []).map((row: any) => ({
-      id: row.id,
-      slug: row.slug,
-      title: row.title,
-      excerpt: row.excerpt,
-      content: row.content ?? '',
-      impact: row.impact ?? undefined,
-      category: row.category,
-      tags: Array.isArray(row.tags) ? row.tags : [],
-      author: {
-        name: row.author_name ?? 'Admin',
-      },
-      publishedAt: row.published_at,
-      updatedAt: row.updated_at ?? undefined,
-      readTime: row.read_time ?? '៥ នាទីអាន',
-      image: row.image ?? undefined,
-      featured: !!row.featured,
-      prediction: row.prediction ?? undefined,
-      docxPath: row.docx_path ?? undefined,
-    }));
+    const articles: NewsArticle[] = (data ?? []).map((row) => mapNewsRowToArticle(row as NewsRow));
 
     return NextResponse.json(articles);
   } catch (e) {
@@ -73,21 +137,20 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json().catch(() => ({}));
     const supabase = getSupabaseAdminClient();
+    const parsed = parseCreateBody(body as NewsCreateBody);
 
-    const title = String(body.title ?? '').trim();
-    const excerpt = String(body.excerpt ?? '').trim();
-    const content = String(body.content ?? '').trim();
-    const impact = body.impact !== undefined ? String(body.impact ?? '').trim() : undefined;
-    const category = (body.category === 'forex' ? 'forex' : 'crypto') as NewsCategory;
-    const tags = Array.isArray(body.tags) ? body.tags.map(String) : [];
-    const authorName = String(body.authorName ?? body.author?.name ?? 'Admin').trim();
-    const publishedAt = body.publishedAt
-      ? new Date(body.publishedAt).toISOString()
-      : new Date().toISOString();
-    const readTime = String(body.readTime ?? '៥ នាទីអាន').trim();
-    const image = body.image ? String(body.image).trim() : undefined;
-    const featured = Boolean(body.featured);
-    const slug = body.slug ? String(body.slug).trim() : slugify(title);
+    const title = parsed.title;
+    const excerpt = parsed.excerpt;
+    const content = parsed.content ?? '';
+    const impact = parsed.impact;
+    const category = parsed.category;
+    const tags = parsed.tags;
+    const authorName = parsed.authorName;
+    const publishedAt = parsed.publishedAt ?? new Date().toISOString();
+    const readTime = parsed.readTime ?? '៥ នាទីអាន';
+    const image = parsed.image;
+    const featured = parsed.featured;
+    const slug = parsed.slug ? parsed.slug : slugify(title);
 
     if (!title || !slug) {
       return NextResponse.json(

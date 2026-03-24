@@ -39,12 +39,13 @@ export const AnimatedSection = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const refEl = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          if (once && ref.current) {
-            observer.unobserve(ref.current);
+          if (once && refEl) {
+            observer.unobserve(refEl);
           }
         } else if (!once) {
           setIsVisible(false);
@@ -53,13 +54,13 @@ export const AnimatedSection = ({
       { threshold }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (refEl) {
+      observer.observe(refEl);
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (refEl) {
+        observer.unobserve(refEl);
       }
     };
   }, [threshold, once]);
@@ -105,25 +106,26 @@ export const StaggeredList = ({
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const refEl = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setIsVisible(true);
-          if (ref.current) {
-            observer.unobserve(ref.current);
+          if (refEl) {
+            observer.unobserve(refEl);
           }
         }
       },
       { threshold: 0.1 }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (refEl) {
+      observer.observe(refEl);
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (refEl) {
+        observer.unobserve(refEl);
       }
     };
   }, []);
@@ -166,6 +168,7 @@ export const AnimatedCounter = ({
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    const refEl = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -176,13 +179,13 @@ export const AnimatedCounter = ({
       { threshold: 0.5 }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (refEl) {
+      observer.observe(refEl);
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (refEl) {
+        observer.unobserve(refEl);
       }
     };
   }, []);
@@ -237,6 +240,7 @@ export const Typewriter = ({
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    const refEl = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -247,13 +251,13 @@ export const Typewriter = ({
       { threshold: 0.5 }
     );
 
-    if (ref.current) {
-      observer.observe(ref.current);
+    if (refEl) {
+      observer.observe(refEl);
     }
 
     return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
+      if (refEl) {
+        observer.unobserve(refEl);
       }
     };
   }, []);

@@ -21,9 +21,11 @@ export const TradingViewWidget = memo(function TradingViewWidget({
   useEffect(() => {
     if (!inView || !container.current) return;
     let cancelled = false;
+    const containerEl = container.current;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(false);
-    container.current.innerHTML = '';
+    containerEl.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
@@ -48,11 +50,11 @@ export const TradingViewWidget = memo(function TradingViewWidget({
       if (!cancelled) setIsLoaded(true);
     };
 
-    container.current.appendChild(script);
+    containerEl.appendChild(script);
 
     return () => {
       cancelled = true;
-      if (container.current) container.current.innerHTML = '';
+      containerEl.innerHTML = '';
     };
   }, [symbol, height, autosize, inView]);
 
@@ -77,9 +79,11 @@ export const TradingViewTicker = memo(function TradingViewTicker() {
   useEffect(() => {
     if (!container.current) return;
     let cancelled = false;
+    const containerEl = container.current;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(false);
-    container.current.innerHTML = '';
+    containerEl.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js';
@@ -115,11 +119,11 @@ export const TradingViewTicker = memo(function TradingViewTicker() {
     script.onload = () => {
       if (!cancelled) setIsLoaded(true);
     };
-    container.current.appendChild(script);
+    containerEl.appendChild(script);
 
     return () => {
       cancelled = true;
-      if (container.current) container.current.innerHTML = '';
+      containerEl.innerHTML = '';
     };
   }, []);
 
@@ -163,9 +167,11 @@ export const TradingViewHeatmap = memo(function TradingViewHeatmap({
   useEffect(() => {
     if (!inView || !container.current) return;
     let cancelled = false;
+    const containerEl = container.current;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(false);
-    container.current.innerHTML = '';
+    containerEl.innerHTML = '';
 
     const script = document.createElement('script');
 
@@ -203,11 +209,11 @@ export const TradingViewHeatmap = memo(function TradingViewHeatmap({
       if (!cancelled) setIsLoaded(true);
     };
 
-    container.current.appendChild(script);
+    containerEl.appendChild(script);
 
     return () => {
       cancelled = true;
-      if (container.current) container.current.innerHTML = '';
+      containerEl.innerHTML = '';
     };
   }, [type, height, inView]);
 
@@ -243,9 +249,11 @@ export const TradingViewMiniChart = memo(function TradingViewMiniChart({
   useEffect(() => {
     if (!inView || !container.current) return;
     let cancelled = false;
+    const containerEl = container.current;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(false);
-    container.current.innerHTML = '';
+    containerEl.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js';
@@ -266,11 +274,11 @@ export const TradingViewMiniChart = memo(function TradingViewMiniChart({
     script.onload = () => {
       if (!cancelled) setIsLoaded(true);
     };
-    container.current.appendChild(script);
+    containerEl.appendChild(script);
 
     return () => {
       cancelled = true;
-      if (container.current) container.current.innerHTML = '';
+      containerEl.innerHTML = '';
     };
   }, [symbol, width, height, inView]);
 
@@ -306,9 +314,11 @@ export const TradingViewTechnicalHeatmap = memo(function TradingViewTechnicalHea
   useEffect(() => {
     if (!inView || !container.current) return;
     let cancelled = false;
+    const containerEl = container.current;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(false);
-    container.current.innerHTML = '';
+    containerEl.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js';
@@ -330,11 +340,11 @@ export const TradingViewTechnicalHeatmap = memo(function TradingViewTechnicalHea
       if (!cancelled) setIsLoaded(true);
     };
 
-    container.current.appendChild(script);
+    containerEl.appendChild(script);
 
     return () => {
       cancelled = true;
-      if (container.current) container.current.innerHTML = '';
+      containerEl.innerHTML = '';
     };
   }, [height, inView, interval, symbol]);
 
@@ -381,9 +391,11 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
   useEffect(() => {
     if (!inView || !container.current) return;
     let cancelled = false;
+    const containerEl = container.current;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsLoaded(false);
-    container.current.innerHTML = '';
+    containerEl.innerHTML = '';
 
     const script = document.createElement('script');
     script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js';
@@ -447,11 +459,11 @@ export const TradingViewMarketOverview = memo(function TradingViewMarketOverview
     script.onload = () => {
       if (!cancelled) setIsLoaded(true);
     };
-    container.current.appendChild(script);
+    containerEl.appendChild(script);
 
     return () => {
       cancelled = true;
-      if (container.current) container.current.innerHTML = '';
+      containerEl.innerHTML = '';
     };
   }, [effectiveHeight, inView]);
 

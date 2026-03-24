@@ -5,12 +5,11 @@
  *   npm run create-admin -- admin@camboea.com admin@168
  */
 
-/* eslint-disable no-console */
-
-require('dotenv').config();
-const { createClient } = require('@supabase/supabase-js');
-
 async function main() {
+  const dotenv = await import('dotenv');
+  const { createClient } = await import('@supabase/supabase-js');
+  dotenv.config();
+
   const [, , emailArg, passwordArg] = process.argv;
 
   if (!emailArg || !passwordArg) {

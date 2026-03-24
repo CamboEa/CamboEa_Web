@@ -26,15 +26,6 @@ function formatEventTime(isoDate: string) {
   });
 }
 
-function formatEventDateOnly(isoDate: string) {
-  return new Date(isoDate).toLocaleDateString('km-KH', {
-    timeZone: CAMBODIA_TZ,
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
 /** Normalize API date (e.g. "2026-03-16T04:30:00+07:00") to YYYY-MM-DD for grouping. */
 function getEventDateKey(isoDate: string): string {
   if (!isoDate || typeof isoDate !== 'string') return '';
@@ -108,11 +99,13 @@ function MiniCalendar({
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasMounted(true);
   }, []);
 
   useEffect(() => {
     const [y, m] = selectedDate.split('-').map(Number);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setViewDate((prev) => {
       if (prev.getFullYear() === y && prev.getMonth() === m - 1) return prev;
       return new Date(y, m - 1, 1);

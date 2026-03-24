@@ -4,6 +4,26 @@ import type { NextRequest } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 
 const ADMIN_PIN_VERIFIED_COOKIE = 'admin_pin_verified';
+const ADMIN_ROLE_CACHE_TTL_MS = 60_000;
+const adminRoleCache = new Map<string, { role: string; expiresAt: number }>();
+
+function getCachedRole(userId: string): string | null {
+  const now = Date.now();
+  const cached = adminRoleCache.get(userId);
+  if (!cached) return null;
+  if (cached.expiresAt <= now) {
+    adminRoleCache.delete(userId);
+    return null;
+  }
+  return cached.role;
+}
+
+function setCachedRole(userId: string, role: string): void {
+  adminRoleCache.set(userId, {
+    role,
+    expiresAt: Date.now() + ADMIN_ROLE_CACHE_TTL_MS,
+  });
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -40,7 +60,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  let response = NextResponse.next();
+  const response = NextResponse.next();
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
@@ -66,16 +86,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single();
+  const cachedRole = getCachedRole(user.id);
+  const profile = cachedRole
+    ? { role: cachedRole }
+    : await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+        .then(({ data }) => data);
 
   if (!profile || profile.role !== 'admin') {
     const loginUrl = new URL('/admin/login', request.url);
     return NextResponse.redirect(loginUrl);
   }
+
+  setCachedRole(user.id, profile.role);
 
   return response;
 }

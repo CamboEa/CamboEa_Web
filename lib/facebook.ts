@@ -15,11 +15,10 @@ function buildArticleUrl(slug: string): string {
   return `${siteUrl}/news/${slug}`;
 }
 
-function buildMessage({ title, excerpt, impact, articleUrl }: {
+function buildMessage({ title, excerpt, impact }: {
   title: string;
   excerpt: string;
   impact?: string;
-  articleUrl: string;
 }): string {
   const parts = [
     `${title}`,
@@ -48,7 +47,7 @@ export async function sendNewsToFacebook({
   }
 
   const articleUrl = buildArticleUrl(slug);
-  const message = buildMessage({ title, excerpt, impact, articleUrl });
+  const message = buildMessage({ title, excerpt, impact });
 
   try {
     // Prefer /feed link posts so Facebook renders the large link preview card.

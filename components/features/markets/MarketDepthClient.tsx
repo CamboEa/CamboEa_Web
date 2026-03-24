@@ -3,67 +3,8 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-
-const MARKET_OPTIONS: { value: 'overview' | 'depth' | 'retailer'; label: string }[] = [
-  { value: 'overview', label: 'ទិដ្ឋភាពទីផ្សារ (Overview)' },
-  { value: 'depth', label: 'ជម្រៅទីផ្សារ (Level 1 & 2)' },
-  { value: 'retailer', label: 'ទិន្នន័យអ្នកលក់រាយ (Retailer)' },
-];
-
-const SYMBOLS = [
-  { value: 'BTCUSDT', label: 'BTC/USDT' },
-  { value: 'ETHUSDT', label: 'ETH/USDT' },
-  { value: 'BNBUSDT', label: 'BNB/USDT' },
-  { value: 'SOLUSDT', label: 'SOL/USDT' },
-  { value: 'XRPUSDT', label: 'XRP/USDT' },
-  { value: 'DOGEUSDT', label: 'DOGE/USDT' },
-  { value: 'ADAUSDT', label: 'ADA/USDT' },
-  { value: 'AVAXUSDT', label: 'AVAX/USDT' },
-  { value: 'EURUSD', label: 'EUR/USD' },
-  { value: 'GBPUSD', label: 'GBP/USD' },
-  { value: 'USDJPY', label: 'USD/JPY' },
-  { value: 'XAUUSD', label: 'XAU/USD (Gold)' },
-];
-
-type DepthState = {
-  symbol: string;
-  lastPrice: string;
-  bidPrice: string;
-  askPrice: string;
-  priceChangePercent: string;
-  bids: [string, string][];
-  asks: [string, string][];
-} | null;
-
-function MyfxbookForexRatesWidget({ height = 430 }: { height?: number }) {
-  return (
-    <div className="space-y-2">
-      <div style={{ height }}>
-        <iframe
-          src="https://widget.myfxbook.com/widget/market-quotes.html?symbols=XAUUSD,XAGAUD,EURGBP,EURUSD,GBPJPY,GBPUSD,USDJPY"
-          style={{ border: 0, width: '100%', height: '100%' }}
-          title="Forex Rates"
-          loading="lazy"
-        />
-      </div>
-      <div className="mt-2">       
-      </div>
-    </div>
-  );
-}
-
-function formatNum(s: string, decimals: number): string {
-  const n = parseFloat(s);
-  if (Number.isNaN(n)) return s;
-  return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
-}
-
-function spread(bid: string, ask: string): string {
-  const b = parseFloat(bid);
-  const a = parseFloat(ask);
-  if (Number.isNaN(b) || Number.isNaN(a)) return '—';
-  return (a - b).toFixed(4);
-}
+import { MARKET_OPTIONS, SYMBOLS, formatNum, spread, type DepthState } from './marketDepthShared';
+import { MarketDepthHelpSection, MyfxbookForexRatesWidget } from './MarketDepthSections';
 
 type MarketDepthClientProps = { embedded?: boolean };
 
@@ -243,27 +184,7 @@ export function MarketDepthClient({ embedded = false }: MarketDepthClientProps) 
         )}
       </div>
       {/* Help frame (always visible) */}
-      <div className="rounded-xl border border-blue-200 dark:border-blue-800 bg-blue-50/70 dark:bg-blue-900/20 p-4">
-        <h3 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3">
-          ព័ត៌មាននេះជួយ Trade របៀបណា?
-        </h3>
-        <div className="grid sm:grid-cols-2 gap-6 text-sm">
-          <div>
-            <p className="font-medium text-gray-900 dark:text-white mb-1.5">Level 1 — តម្លៃដេញថ្លៃ / យល់ព្រម / ថ្លៃចុងក្រោយ</p>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              បង្ហាញតម្លៃដេញថ្លៃ (Bid) និងយល់ព្រម (Ask) ល្អបំផុត រួមទាំងថ្លៃចុងក្រោយ និងចន្លោះ (Spread)។
-              ជួយអ្នកវាយតម្លៃថ្លៃធ្វើដំណើរ ពេលវេលាចូល-ចេញដែលសមរម្យ និងថ្លៃដែលទីផ្សារពិតជាធ្វើដំណើរនៅពេលនេះ។
-            </p>
-          </div>
-          <div>
-            <p className="font-medium text-gray-900 dark:text-white mb-1.5">Level 2 — ជម្រៅទីផ្សារ (Order Book)</p>
-            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              បង្ហាញបញ្ជីដេញថ្លៃ និងយល់ព្រមជាច្រើនកម្រិត។
-              ជួយអ្នកមើលថាមានការគាំទ្រ ឬការទប់ទល់នៅតម្លៃណា តើមានសារៈសំខាន់ប៉ុណ្ណានៅជិតតម្លៃបច្ចុប្បន្ន និងធ្វើឱ្យអ្នករៀបចំការចូល-ចេញឱ្យប្រសើរ។
-            </p>
-          </div>
-        </div>
-      </div>
+      <MarketDepthHelpSection />
                    {/* Level 1 */}
                    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
             <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
