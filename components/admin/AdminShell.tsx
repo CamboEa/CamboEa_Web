@@ -20,6 +20,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [loggingOut, setLoggingOut] = useState(false);
   const isAuthPage = pathname === '/admin/login' || pathname === '/admin/pin';
+  const activeHref = [...ADMIN_NAV]
+    .sort((a, b) => b.href.length - a.href.length)
+    .find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`))?.href;
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -51,7 +54,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         </div>
         <nav className="p-2 flex-1">
           {ADMIN_NAV.map((item) => {
-            const isActive = item.href === '/admin' ? pathname === '/admin' : pathname.startsWith(item.href);
+            const isActive = activeHref === item.href;
             return (
               <Link
                 key={item.href}

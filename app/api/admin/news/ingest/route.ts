@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
     if (!admin) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const sources = getIngestSources().map((s: IngestSourceConfig) => ({ id: s.id, label: s.label }));
+    const sources = (await getIngestSources()).map((s: IngestSourceConfig) => ({ id: s.id, label: s.label }));
     return NextResponse.json({ sources });
   } catch (e) {
     console.error(e);

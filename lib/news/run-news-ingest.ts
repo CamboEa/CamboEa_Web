@@ -24,6 +24,42 @@ type RssItem = {
   enclosure?: { url?: string; type?: string };
 };
 
+function canonicalizeArticleUrl(rawUrl: string): string {
+  const url = new URL(rawUrl);
+  url.hash = '';
+  url.hostname = url.hostname.toLowerCase();
+  if (url.hostname.startsWith('www.')) {
+    url.hostname = url.hostname.slice(4);
+  }
+
+  // Keep only meaningful params; drop common tracking params.
+  const keepParams = new URLSearchParams();
+  for (const [key, value] of url.searchParams.entries()) {
+    const k = key.toLowerCase();
+    if (
+      k.startsWith('utm_') ||
+      k === 'fbclid' ||
+      k === 'gclid' ||
+      k === 'mc_cid' ||
+      k === 'mc_eid' ||
+      k === 'igshid' ||
+      k === 'ref' ||
+      k === 'ref_src'
+    ) {
+      continue;
+    }
+    keepParams.append(key, value);
+  }
+  url.search = keepParams.toString() ? `?${keepParams.toString()}` : '';
+
+  // Normalize trailing slash (except root path).
+  if (url.pathname.length > 1) {
+    url.pathname = url.pathname.replace(/\/+$/, '');
+  }
+
+  return url.toString();
+}
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -120,7 +156,7 @@ export async function runNewsIngest(
   try {
     emitStep('init', 'ផ្ទៀងផ្ទាត់ប្រភព និងចាប់ផ្តើម');
 
-    const source = getIngestSourceById(sourceId);
+    const source = await getIngestSourceById(sourceId);
     if (!source) {
       return { ok: false, error: 'No ingest source configured', status: 400 };
     }
@@ -142,19 +178,31 @@ export async function runNewsIngest(
     for (const item of items) {
       const link = pickItemLink(item);
       if (!link) continue;
+      const normalizedLink = canonicalizeArticleUrl(link);
       try {
-        assertArticleHostAllowed(link, source);
+        assertArticleHostAllowed(normalizedLink, source);
       } catch {
         continue;
       }
 
-      const { data: existing } = await supabase.from('news').select('id').eq('source_url', link).maybeSingle();
-      if (existing) {
+      const { data: existingNormalized } = await supabase
+        .from('news')
+        .select('id')
+        .eq('source_url', normalizedLink)
+        .maybeSingle();
+      if (existingNormalized) {
         skipped += 1;
         continue;
       }
 
-      chosen = { item, link };
+      // Backward compatibility for rows inserted before canonicalization.
+      const { data: existingRaw } = await supabase.from('news').select('id').eq('source_url', link).maybeSingle();
+      if (existingRaw) {
+        skipped += 1;
+        continue;
+      }
+
+      chosen = { item, link: normalizedLink };
       break;
     }
 

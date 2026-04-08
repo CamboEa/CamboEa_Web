@@ -325,6 +325,7 @@ const SYSTEM_PROMPT = `You are a financial news editor for Cambodian readers. Re
 Rules:
 - Preserve all facts, numbers, dates, names, and quotes accurately. Do not invent or alter figures.
 - Use clear Khmer suitable for a trading/forex/crypto audience.
+- For important names/entities (people, companies, institutions, countries, currencies, crypto assets, indices), write Khmer first and include the original English in parentheses on first mention, e.g. ធនាគារកណ្តាលអាមេរិក (Federal Reserve), ប៊ីតខોઇន (Bitcoin), ដុល្លារអាមេរិក (USD).
 - Output ONLY valid JSON (no markdown fences, no commentary before or after the JSON). Keys:
   - "title": string (Khmer headline)
   - "excerpt": string (1–2 sentences, Khmer)

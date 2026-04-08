@@ -1,4 +1,5 @@
 import type { NewsCategory } from '@/types';
+import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 
 export type IngestSourceConfig = {
   id: string;
@@ -7,6 +8,15 @@ export type IngestSourceConfig = {
   /** If set, only item links whose hostname matches (with or without www.) are ingested. */
   allowedArticleHosts?: string[];
   category: NewsCategory;
+};
+
+type IngestSourceRow = {
+  id: string;
+  label: string;
+  feed_url: string;
+  allowed_article_hosts: string[] | null;
+  category: NewsCategory;
+  is_active: boolean;
 };
 
 const DEFAULT_SOURCES: IngestSourceConfig[] = [
@@ -39,26 +49,57 @@ function isValidSourceEntry(v: unknown): v is IngestSourceConfig {
   );
 }
 
+function toConfig(row: IngestSourceRow): IngestSourceConfig {
+  return {
+    id: row.id,
+    label: row.label,
+    feedUrl: row.feed_url,
+    allowedArticleHosts: Array.isArray(row.allowed_article_hosts) ? row.allowed_article_hosts : undefined,
+    category: row.category,
+  };
+}
+
 /**
  * Optional env `NEWS_INGEST_SOURCES_JSON`: JSON array of IngestSourceConfig.
  * If missing or invalid, built-in defaults are used.
  */
-export function getIngestSources(): IngestSourceConfig[] {
+export async function getIngestSources(): Promise<IngestSourceConfig[]> {
+  // Optional env override for quick ops/testing.
   const raw = process.env.NEWS_INGEST_SOURCES_JSON?.trim();
-  if (!raw) return DEFAULT_SOURCES;
+  if (raw) {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_SOURCES;
+      const list = parsed.filter(isValidSourceEntry);
+      return list.length > 0 ? list : DEFAULT_SOURCES;
+    } catch {
+      return DEFAULT_SOURCES;
+    }
+  }
 
   try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) return DEFAULT_SOURCES;
-    const list = parsed.filter(isValidSourceEntry);
-    return list.length > 0 ? list : DEFAULT_SOURCES;
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from('news_ingest_sources')
+      .select('id,label,feed_url,allowed_article_hosts,category,is_active')
+      .eq('is_active', true)
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      console.error(error);
+      return DEFAULT_SOURCES;
+    }
+
+    const rows = (data ?? []) as IngestSourceRow[];
+    if (rows.length === 0) return DEFAULT_SOURCES;
+    return rows.map(toConfig);
   } catch {
     return DEFAULT_SOURCES;
   }
 }
 
-export function getIngestSourceById(id: string | undefined): IngestSourceConfig | null {
-  const sources = getIngestSources();
+export async function getIngestSourceById(id: string | undefined): Promise<IngestSourceConfig | null> {
+  const sources = await getIngestSources();
   if (!id?.trim()) return sources[0] ?? null;
   return sources.find((s) => s.id === id.trim()) ?? null;
 }
