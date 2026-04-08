@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { sendNewsToFacebook } from '@/lib/facebook';
@@ -41,6 +42,13 @@ function slugify(text: string): string {
     .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
+}
+
+function revalidateNewsPages(slugs: Array<string | undefined>) {
+  revalidatePath('/news');
+  for (const slug of slugs) {
+    if (slug) revalidatePath(`/news/${slug}`);
+  }
 }
 
 // GET /api/admin/news/[id] — get one article (admin only)
@@ -151,6 +159,7 @@ export async function PUT(
       body.isPublished !== undefined ? Boolean(body.isPublished) : prevPublished;
     let slug = body.slug !== undefined ? (parseOptionalString(body.slug) ?? '') : existing.slug;
     if (!slug) slug = slugify(title) || existing.slug;
+    const oldSlug = typeof existing.slug === 'string' ? existing.slug : undefined;
 
     if (!title || !slug) {
       return NextResponse.json(
@@ -214,6 +223,11 @@ export async function PUT(
       }).catch((err) => console.error('Facebook post failed:', err));
     }
 
+    if (isPublished || prevPublished) {
+      const newSlug = data && typeof data.slug === 'string' ? data.slug : slug;
+      revalidateNewsPages([oldSlug, newSlug]);
+    }
+
     return NextResponse.json(data);
   } catch (e) {
     console.error(e);
@@ -236,11 +250,21 @@ export async function DELETE(
     const { id } = await params;
     const supabase = getSupabaseAdminClient();
 
+    const { data: existing } = await supabase.from('news').select('slug,is_published').eq('id', id).maybeSingle();
+    const deletedSlug =
+      existing && typeof existing.slug === 'string' ? existing.slug : undefined;
+    const wasPublished =
+      !existing || typeof existing.is_published !== 'boolean' ? true : existing.is_published;
+
     const { error } = await supabase.from('news').delete().eq('id', id);
 
     if (error) {
       console.error(error);
       return NextResponse.json({ error: 'Failed to delete article' }, { status: 500 });
+    }
+
+    if (wasPublished) {
+      revalidateNewsPages([deletedSlug]);
     }
 
     return NextResponse.json({ ok: true });

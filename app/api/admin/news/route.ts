@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 import { sendNewsToTelegram } from '@/lib/telegram';
@@ -131,6 +132,11 @@ function slugify(text: string): string {
     .replace(/^-|-$/g, '');
 }
 
+function revalidateNewsPages(slug?: string) {
+  revalidatePath('/news');
+  if (slug) revalidatePath(`/news/${slug}`);
+}
+
 // POST /api/admin/news — create article (admin only)
 export async function POST(request: NextRequest) {
   try {
@@ -208,6 +214,8 @@ export async function POST(request: NextRequest) {
         image,
         impact,
       }).catch((err) => console.error('Facebook post failed:', err));
+
+      revalidateNewsPages(slug);
     }
 
     return NextResponse.json(data);
