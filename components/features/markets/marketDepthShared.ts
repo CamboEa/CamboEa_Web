@@ -2,7 +2,7 @@
 
 export const MARKET_OPTIONS: { value: 'overview' | 'depth' | 'retailer'; label: string }[] = [
   { value: 'overview', label: 'ទិដ្ឋភាពទីផ្សារ (Overview)' },
-  { value: 'depth', label: 'ជម្រៅទីផ្សារ (Level 1 & 2)' },
+  { value: 'depth', label: 'ជម្រៅទីផ្សារ (Market Depth)' },
   { value: 'retailer', label: 'ទិន្នន័យអ្នកលក់រាយ (Retailer)' },
 ];
 

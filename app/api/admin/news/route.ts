@@ -20,6 +20,7 @@ type NewsCreateBody = {
   readTime?: unknown;
   image?: unknown;
   featured?: unknown;
+  isPublished?: unknown;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -46,6 +47,7 @@ function parseCreateBody(input: unknown): {
   readTime?: string;
   image?: string;
   featured: boolean;
+  isPublished: boolean;
 } {
   if (!isRecord(input)) {
     throw new Error('Invalid payload');
@@ -86,6 +88,7 @@ function parseCreateBody(input: unknown): {
     readTime: parseOptionalString(input.readTime),
     image: parseOptionalString(input.image),
     featured: Boolean(input.featured),
+    isPublished: input.isPublished === false ? false : true,
   };
 }
 
@@ -150,6 +153,7 @@ export async function POST(request: NextRequest) {
     const readTime = parsed.readTime ?? '៥ នាទីអាន';
     const image = parsed.image;
     const featured = parsed.featured;
+    const isPublished = parsed.isPublished;
     const slug = parsed.slug ? parsed.slug : slugify(title);
 
     if (!title || !slug) {
@@ -174,6 +178,7 @@ export async function POST(request: NextRequest) {
         image: image || null,
         featured,
         docx_path: null,
+        is_published: isPublished,
       })
       .select('*')
       .maybeSingle();
@@ -186,21 +191,23 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create article' }, { status: 500 });
     }
 
-    sendNewsToTelegram({
-      title,
-      excerpt,
-      slug,
-      image,
-      impact,
-    }).catch((err) => console.error('Telegram notification failed:', err));
+    if (isPublished) {
+      sendNewsToTelegram({
+        title,
+        excerpt,
+        slug,
+        image,
+        impact,
+      }).catch((err) => console.error('Telegram notification failed:', err));
 
-    sendNewsToFacebook({
-      title,
-      excerpt,
-      slug,
-      image,
-      impact,
-    }).catch((err) => console.error('Facebook post failed:', err));
+      sendNewsToFacebook({
+        title,
+        excerpt,
+        slug,
+        image,
+        impact,
+      }).catch((err) => console.error('Facebook post failed:', err));
+    }
 
     return NextResponse.json(data);
   } catch (e) {

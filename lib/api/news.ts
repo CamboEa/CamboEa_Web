@@ -231,6 +231,7 @@ async function fetchNewsFromSupabase(): Promise<NewsArticle[] | null> {
   const { data, error } = await supabase
     .from('news')
     .select(NEWS_SELECT_COLUMNS)
+    .eq('is_published', true)
     .order('published_at', { ascending: false });
 
   if (error || !data) {
@@ -301,6 +302,7 @@ export async function getArticleBySlug(slug: string): Promise<NewsArticle | null
       .from('news')
       .select(NEWS_SELECT_COLUMNS)
       .eq('slug', slug)
+      .eq('is_published', true)
       .maybeSingle();
 
     if (!error && data) {

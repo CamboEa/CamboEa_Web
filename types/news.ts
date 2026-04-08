@@ -21,6 +21,10 @@ export interface NewsArticle {
   content: string;
   docxPath?: string;
   impact?: string;         // ផលប៉ះពាល់
+  /** When false, article is a draft (not shown on public /news). Defaults true for legacy rows. */
+  isPublished?: boolean;
+  sourceUrl?: string;
+  sourceName?: string;
   category: NewsCategory;
   tags: string[];
   author: {

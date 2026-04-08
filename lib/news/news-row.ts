@@ -1,7 +1,7 @@
 import type { NewsArticle, NewsCategory } from '@/types';
 
 export const NEWS_SELECT_COLUMNS =
-  'id, slug, title, excerpt, content, impact, category, tags, author_name, published_at, updated_at, read_time, image, featured, prediction, docx_path';
+  'id, slug, title, excerpt, content, impact, category, tags, author_name, published_at, updated_at, read_time, image, featured, prediction, docx_path, is_published, source_url, source_name';
 
 export type NewsRow = {
   id: string;
@@ -20,6 +20,9 @@ export type NewsRow = {
   featured: boolean | null;
   prediction: NewsArticle['prediction'] | null;
   docx_path: string | null;
+  is_published: boolean | null;
+  source_url: string | null;
+  source_name: string | null;
 };
 
 export function mapNewsRowToArticle(row: NewsRow): NewsArticle {
@@ -30,6 +33,9 @@ export function mapNewsRowToArticle(row: NewsRow): NewsArticle {
     excerpt: row.excerpt,
     content: row.content ?? '',
     impact: row.impact ?? undefined,
+    isPublished: row.is_published !== false,
+    sourceUrl: row.source_url ?? undefined,
+    sourceName: row.source_name ?? undefined,
     category: row.category,
     tags: Array.isArray(row.tags) ? row.tags : [],
     author: {

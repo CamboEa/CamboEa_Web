@@ -2,10 +2,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  MyfxbookEconomicCalendarWidget,
-  MyfxbookVolatilityWidget,
-} from './TradingViewWidgets';
+import { MyfxbookVolatilityWidget } from './TradingViewWidgets';
 import { MarketsOverviewPanel } from './MarketsOverviewPanel';
 import { MARKET_OPTIONS, PAIRS, ViewSkeleton, type ViewMode } from './marketsPageShared';
 
@@ -20,13 +17,13 @@ const RetailerDataClient = dynamic(() => import('./RetailerDataClient').then((m)
   loading: () => <ViewSkeleton text="ទិន្នន័យអ្នកលក់រាយ" />,
 });
 
-type MarketsPageClientProps = { initialView?: 'overview' | 'retailer' | 'depth' | 'calendar' | 'volatility' };
+type MarketsPageClientProps = { initialView?: 'overview' | 'retailer' | 'depth' | 'volatility' };
 
 export function MarketsPageClient({ initialView = 'overview' }: MarketsPageClientProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [view, setView] = useState<ViewMode>(initialView);
-  const [dropdownValue, setDropdownValue] = useState<'overview' | 'depth' | 'retailer' | 'calendar' | 'volatility'>(initialView);
+  const [dropdownValue, setDropdownValue] = useState<'overview' | 'depth' | 'retailer' | 'volatility'>(initialView);
   const [overviewQuery, setOverviewQuery] = useState('');
   const [selectedOverviewPair, setSelectedOverviewPair] = useState<{ label: string; tvSymbol: string }>({
     label: 'XAU/USD',
@@ -116,22 +113,6 @@ export function MarketsPageClient({ initialView = 'overview' }: MarketsPageClien
           {view === 'retailer' && (
             <div className="rounded-xl overflow-hidden w-full">
               <RetailerDataClient />
-            </div>
-          )}
-
-          {view === 'calendar' && (
-            <div className="rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-800">
-              <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
-                  Economic Calendar
-                </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                  តាមដានព្រឹត្តិការណ៍សេដ្ឋកិច្ចសំខាន់ៗ និងកម្រិតផលប៉ះពាល់។
-                </p>
-              </div>
-              <div className="p-3 sm:p-4">
-                <MyfxbookEconomicCalendarWidget height={620} />
-              </div>
             </div>
           )}
 

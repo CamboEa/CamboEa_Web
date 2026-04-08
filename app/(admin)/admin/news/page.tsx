@@ -16,6 +16,24 @@ export default function AdminNewsPage() {
   const [search, setSearch] = useState('');
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
+  const [ingestSources, setIngestSources] = useState<{ id: string; label: string }[]>([]);
+  const [ingestSourceId, setIngestSourceId] = useState('');
+  const [ingesting, setIngesting] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/admin/news/ingest')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (cancelled || !data?.sources?.length) return;
+        setIngestSources(data.sources);
+        setIngestSourceId((id) => id || data.sources[0].id);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const filteredArticles = useMemo(() => {
     let list = [...articles];
@@ -68,6 +86,31 @@ export default function AdminNewsPage() {
     setDeleteConfirmId(id);
   };
 
+  const handleIngest = async () => {
+    setIngesting(true);
+    try {
+      const res = await fetch('/api/admin/news/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sourceId: ingestSourceId || undefined }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(typeof data.error === 'string' ? data.error : 'ទាញព័ត៌មានមិនបាន');
+        return;
+      }
+      if (data.id) {
+        toast.success('បានបង្កើតព្រាង — កែសម្រួលហើយផុសនៅពេលរួចរាល់');
+        router.push(`/admin/news/${data.id}/edit`);
+        router.refresh();
+      }
+    } catch {
+      toast.error('ទាញព័ត៌មានមិនបាន');
+    } finally {
+      setIngesting(false);
+    }
+  };
+
   const handleDeleteConfirm = async () => {
     const id = deleteConfirmId;
     if (!id) return;
@@ -108,16 +151,43 @@ export default function AdminNewsPage() {
         onCancel={() => setDeleteConfirmId(null)}
       />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
           ព័ត៌មាន
         </h1>
-        <Link
-          href="/admin/news/new"
-          className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          បន្ថែមអត្ថបទ
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          {ingestSources.length > 0 && (
+            <>
+              <select
+                value={ingestSourceId}
+                onChange={(e) => setIngestSourceId(e.target.value)}
+                disabled={ingesting}
+                className="rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[180px]"
+                aria-label="ប្រភព RSS"
+              >
+                {ingestSources.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.label}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={handleIngest}
+                disabled={ingesting || !ingestSourceId}
+                className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-700 disabled:opacity-50"
+              >
+                {ingesting ? 'កំពុងទាញ…' : 'ទាញយកព័ត៌មាន (AI)'}
+              </button>
+            </>
+          )}
+          <Link
+            href="/admin/news/new"
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 text-center"
+          >
+            បន្ថែមអត្ថបទ
+          </Link>
+        </div>
       </div>
 
       {!loading && articles.length > 0 && (
@@ -210,6 +280,11 @@ export default function AdminNewsPage() {
                     <span className="font-medium text-gray-900 dark:text-white">
                       {a.title}
                     </span>
+                    {a.isPublished === false && (
+                      <span className="ml-2 text-xs text-violet-600 dark:text-violet-400">
+                        ព្រាង
+                      </span>
+                    )}
                     {a.featured && (
                       <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
                         ពិសេស

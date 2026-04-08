@@ -8,6 +8,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "",
     "/news",
     "/markets",
+    "/liquidity",
     "/calendar",
     "/analysis",
     "/ea-trading-bot",

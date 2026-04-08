@@ -3,9 +3,6 @@ import { randomUUID } from 'crypto';
 import { requireAdmin } from '@/lib/admin-auth';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 
-const BUCKET = 'lessons';
-const META_PREFIX = 'metadata';
-
 export type LessonItem = {
   id: string;
   title: string;
@@ -15,54 +12,25 @@ export type LessonItem = {
   createdAt: string;
 };
 
-async function ensureBucket() {
-  const supabase = getSupabaseAdminClient();
-  const { data: existing } = await supabase.storage.getBucket(BUCKET);
-  if (existing?.id) return;
+type LessonRow = {
+  id: string;
+  title: string;
+  description: string;
+  reference: string;
+  lesson_url: string;
+  created_at: string;
+  updated_at: string;
+};
 
-  const { error } = await supabase.storage.createBucket(BUCKET, {
-    public: true,
-    fileSizeLimit: 2 * 1024 * 1024,
-  });
-  if (error) {
-    throw new Error(error.message || 'បង្កើត Lessons storage bucket មិនបាន');
-  }
-}
-
-async function listLessons(): Promise<LessonItem[]> {
-  await ensureBucket();
-  const supabase = getSupabaseAdminClient();
-  const { data: files, error } = await supabase.storage
-    .from(BUCKET)
-    .list(META_PREFIX, { limit: 500, sortBy: { column: 'name', order: 'desc' } });
-
-  if (error) {
-    throw new Error(error.message || 'មិនអាចទាញបញ្ជី Lesson បាន');
-  }
-
-  const items: LessonItem[] = [];
-  for (const file of files ?? []) {
-    if (!file.name.endsWith('.json')) continue;
-    const metaPath = `${META_PREFIX}/${file.name}`;
-    const { data: blob, error: downloadError } = await supabase.storage.from(BUCKET).download(metaPath);
-    if (downloadError || !blob) continue;
-    const text = await blob.text().catch(() => '');
-    if (!text) continue;
-
-    const parsed = JSON.parse(text) as Partial<LessonItem>;
-    if (!parsed.id || !parsed.title || !parsed.lessonUrl) continue;
-
-    items.push({
-      id: parsed.id,
-      title: String(parsed.title),
-      description: String(parsed.description ?? ''),
-      reference: String(parsed.reference ?? ''),
-      lessonUrl: String(parsed.lessonUrl),
-      createdAt: String(parsed.createdAt ?? new Date().toISOString()),
-    });
-  }
-
-  return items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+function mapRow(row: LessonRow): LessonItem {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description ?? '',
+    reference: row.reference ?? '',
+    lessonUrl: row.lesson_url,
+    createdAt: row.created_at,
+  };
 }
 
 function isValidHttpUrl(value: string): boolean {
@@ -81,7 +49,18 @@ export async function GET() {
       return NextResponse.json({ error: 'មិនមានសិទ្ធិចូលប្រើ' }, { status: 401 });
     }
 
-    const items = await listLessons();
+    const supabase = getSupabaseAdminClient();
+    const { data, error } = await supabase
+      .from('lessons')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error(error);
+      return NextResponse.json({ error: error.message || 'ផ្ទុកបញ្ជី Lesson មិនបាន' }, { status: 500 });
+    }
+
+    const items = (data ?? []).map((r) => mapRow(r as LessonRow));
     return NextResponse.json(items, { status: 200 });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'ផ្ទុកបញ្ជី Lesson មិនបាន';
@@ -109,27 +88,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'ត្រូវការ URL ត្រឹមត្រូវ (http/https)' }, { status: 400 });
     }
 
-    const item: LessonItem = {
-      id: randomUUID(),
-      title,
-      description,
-      reference,
-      lessonUrl,
-      createdAt: new Date().toISOString(),
-    };
-
-    await ensureBucket();
+    const id = randomUUID();
+    const now = new Date().toISOString();
     const supabase = getSupabaseAdminClient();
-    const metaPath = `${META_PREFIX}/${item.id}.json`;
-    const { error } = await supabase.storage.from(BUCKET).upload(metaPath, JSON.stringify(item), {
-      upsert: true,
-      contentType: 'application/json',
-    });
+    const { data, error } = await supabase
+      .from('lessons')
+      .insert({
+        id,
+        title,
+        description,
+        reference,
+        lesson_url: lessonUrl,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('*')
+      .maybeSingle();
+
     if (error) {
+      console.error(error);
       return NextResponse.json({ error: error.message || 'រក្សាទុក Lesson មិនបាន' }, { status: 500 });
     }
 
-    return NextResponse.json(item, { status: 201 });
+    return NextResponse.json(mapRow(data as LessonRow), { status: 201 });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'បន្ថែម Lesson មិនបាន';
     return NextResponse.json({ error: message }, { status: 500 });
@@ -160,31 +141,30 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'ត្រូវការ URL ត្រឹមត្រូវ (http/https)' }, { status: 400 });
     }
 
-    const items = await listLessons();
-    const current = items.find((item) => item.id === id);
-    if (!current) {
-      return NextResponse.json({ error: 'រកមិនឃើញទិន្នន័យ' }, { status: 404 });
-    }
-
-    const updated: LessonItem = {
-      ...current,
-      title,
-      description,
-      reference,
-      lessonUrl,
-    };
-
     const supabase = getSupabaseAdminClient();
-    const metaPath = `${META_PREFIX}/${id}.json`;
-    const { error } = await supabase.storage.from(BUCKET).upload(metaPath, JSON.stringify(updated), {
-      upsert: true,
-      contentType: 'application/json',
-    });
+    const { data, error } = await supabase
+      .from('lessons')
+      .update({
+        title,
+        description,
+        reference,
+        lesson_url: lessonUrl,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select('*')
+      .maybeSingle();
+
     if (error) {
+      console.error(error);
       return NextResponse.json({ error: error.message || 'កែប្រែ Lesson មិនបាន' }, { status: 500 });
     }
 
-    return NextResponse.json(updated, { status: 200 });
+    if (!data) {
+      return NextResponse.json({ error: 'រកមិនឃើញទិន្នន័យ' }, { status: 404 });
+    }
+
+    return NextResponse.json(mapRow(data as LessonRow), { status: 200 });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'កែប្រែ Lesson មិនបាន';
     return NextResponse.json({ error: message }, { status: 500 });
@@ -204,8 +184,9 @@ export async function DELETE(request: NextRequest) {
     }
 
     const supabase = getSupabaseAdminClient();
-    const { error } = await supabase.storage.from(BUCKET).remove([`${META_PREFIX}/${id}.json`]);
+    const { error } = await supabase.from('lessons').delete().eq('id', id);
     if (error) {
+      console.error(error);
       return NextResponse.json({ error: error.message || 'លុប Lesson មិនបាន' }, { status: 500 });
     }
 

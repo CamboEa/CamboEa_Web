@@ -137,6 +137,20 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                 )}
               </div>
 
+              {article.sourceUrl && (
+                <p className="mt-8 text-sm text-gray-500 dark:text-gray-400">
+                  <span className="font-medium text-gray-700 dark:text-gray-300">ប្រភពដើម៖ </span>
+                  <a
+                    href={article.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+                  >
+                    {article.sourceName || 'ប្រភពដើម'}
+                  </a>
+                </p>
+              )}
+
               {/* Tags */}
               {article.tags.length > 0 && (
                 <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">

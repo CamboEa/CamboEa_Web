@@ -1,6 +1,6 @@
 'use client';
 
-export type ViewMode = 'overview' | 'retailer' | 'depth' | 'calendar' | 'volatility';
+export type ViewMode = 'overview' | 'retailer' | 'depth' | 'volatility';
 
 export const PAIRS: { label: string; tvSymbol: string }[] = [
   { label: 'EUR/USD', tvSymbol: 'FX:EURUSD' },
@@ -21,9 +21,8 @@ export const PAIRS: { label: string; tvSymbol: string }[] = [
 
 export const MARKET_OPTIONS: { value: ViewMode; label: string }[] = [
   { value: 'overview', label: 'ទិដ្ឋភាពទីផ្សារ (Overview)' },
-  { value: 'depth', label: 'ជម្រៅទីផ្សារ (Level 1 & 2)' },
+  { value: 'depth', label: 'ជម្រៅទីផ្សារ (Market Depth)' },
   { value: 'retailer', label: 'ទិន្នន័យអ្នកលក់រាយ (Retailer)' },
-  { value: 'calendar', label: 'ប្រតិទិនសេដ្ឋកិច្ច' },
   { value: 'volatility', label: 'Volatility' },
 ];
 

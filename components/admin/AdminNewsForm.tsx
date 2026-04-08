@@ -22,6 +22,7 @@ const defaultValues = {
   readTime: '៥ នាទីអាន',
   image: '',
   featured: false,
+  isPublished: true,
 };
 
 export function AdminNewsForm({ article }: Props) {
@@ -43,6 +44,7 @@ export function AdminNewsForm({ article }: Props) {
         readTime: article.readTime,
         image: article.image ?? '',
         featured: article.featured ?? false,
+        isPublished: article.isPublished !== false,
       });
     }
   }, [article]);
@@ -64,6 +66,7 @@ export function AdminNewsForm({ article }: Props) {
         readTime: form.readTime,
         image: form.image || undefined,
         featured: form.featured,
+        isPublished: form.isPublished,
       };
 
       if (article) {
@@ -233,6 +236,33 @@ export function AdminNewsForm({ article }: Props) {
           ពិសេស (Featured)
         </label>
       </div>
+
+      <div className="flex items-center gap-2">
+        <input
+          id="isPublished"
+          type="checkbox"
+          checked={form.isPublished}
+          onChange={(e) => setForm((f) => ({ ...f, isPublished: e.target.checked }))}
+          className="rounded border-gray-300 dark:border-gray-600"
+        />
+        <label htmlFor="isPublished" className="text-sm text-gray-700 dark:text-gray-300">
+          ផុសជាសាធារណៈ (បង្ហាញនៅ /news)
+        </label>
+      </div>
+
+      {article?.sourceUrl && (
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          ប្រភពដើម៖{' '}
+          <a
+            href={article.sourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 dark:text-blue-400 hover:underline break-all"
+          >
+            {article.sourceName || article.sourceUrl}
+          </a>
+        </p>
+      )}
 
       <div className="flex gap-3 pt-4">
         <button

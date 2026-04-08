@@ -5,7 +5,6 @@ import { getSupabaseAdminClient } from '@/lib/supabase-admin';
 
 const BUCKET = 'trading_indicators';
 const UPLOAD_PREFIX = 'uploads';
-const META_PREFIX = 'metadata';
 
 type IndicatorItem = {
   id: string;
@@ -19,6 +18,18 @@ type IndicatorItem = {
   createdAt: string;
 };
 
+type IndicatorRow = {
+  id: string;
+  indicator_name: string;
+  file_name: string;
+  description: string;
+  file_path: string;
+  size: number;
+  mime_type: string;
+  created_at: string;
+  updated_at: string;
+};
+
 function sanitizeFileName(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, '_');
 }
@@ -30,54 +41,43 @@ async function ensureBucket() {
 
   const { error } = await supabase.storage.createBucket(BUCKET, {
     public: true,
-    fileSizeLimit: 50 * 1024 * 1024, // 50 MB
+    fileSizeLimit: 50 * 1024 * 1024,
   });
   if (error) {
     throw new Error(error.message || 'បង្កើត Indicator storage bucket មិនបាន');
   }
 }
 
+function mapRowToItem(supabase: ReturnType<typeof getSupabaseAdminClient>, row: IndicatorRow): IndicatorItem {
+  const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(row.file_path);
+  return {
+    id: row.id,
+    indicatorName: row.indicator_name,
+    fileName: row.file_name,
+    description: row.description ?? '',
+    filePath: row.file_path,
+    fileUrl: publicData.publicUrl,
+    size: Number(row.size ?? 0),
+    mimeType: row.mime_type ?? 'application/octet-stream',
+    createdAt: row.created_at,
+  };
+}
+
 async function listIndicators(): Promise<IndicatorItem[]> {
   await ensureBucket();
   const supabase = getSupabaseAdminClient();
-
-  const { data: files, error } = await supabase.storage
-    .from(BUCKET)
-    .list(META_PREFIX, { limit: 200, sortBy: { column: 'name', order: 'desc' } });
+  const { data, error } = await supabase
+    .from('trading_indicators')
+    .select('*')
+    .order('created_at', { ascending: false });
 
   if (error) {
     throw new Error(error.message || 'មិនអាចទាញបញ្ជី Indicator បាន');
   }
 
-  const items: IndicatorItem[] = [];
-  for (const file of files ?? []) {
-    if (!file.name.endsWith('.json')) continue;
-    const metaPath = `${META_PREFIX}/${file.name}`;
-    const { data: blob, error: downloadError } = await supabase.storage.from(BUCKET).download(metaPath);
-    if (downloadError || !blob) continue;
-    const text = await blob.text().catch(() => '');
-    if (!text) continue;
-    const parsed = JSON.parse(text) as Partial<IndicatorItem> & { name?: string };
-    if (!parsed?.id || !parsed?.filePath) continue;
-    items.push({
-      id: parsed.id,
-      indicatorName: String(
-        parsed.indicatorName ?? parsed.name ?? parsed.fileName ?? 'Indicator គ្មានចំណងជើង'
-      ),
-      fileName: String(parsed.fileName ?? parsed.name ?? 'ឯកសារមិនស្គាល់'),
-      description: String(parsed.description ?? ''),
-      filePath: parsed.filePath,
-      fileUrl: String(parsed.fileUrl ?? ''),
-      size: Number(parsed.size ?? 0),
-      mimeType: String(parsed.mimeType ?? 'application/octet-stream'),
-      createdAt: String(parsed.createdAt ?? new Date().toISOString()),
-    });
-  }
-
-  return items.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+  return (data ?? []).map((r) => mapRowToItem(supabase, r as IndicatorRow));
 }
 
-// GET /api/admin/indicator — list uploaded indicator files (admin only)
 export async function GET() {
   try {
     const admin = await requireAdmin();
@@ -93,7 +93,6 @@ export async function GET() {
   }
 }
 
-// POST /api/admin/indicator — upload indicator name + file + description (admin only)
 export async function POST(request: NextRequest) {
   try {
     const admin = await requireAdmin();
@@ -131,39 +130,38 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: uploadError.message || 'អាប់ឡូដឯកសារមិនបាន' }, { status: 500 });
     }
 
-    const { data: publicData } = supabase.storage.from(BUCKET).getPublicUrl(uploadPath);
+    const now = new Date().toISOString();
+    const { data, error: insertError } = await supabase
+      .from('trading_indicators')
+      .insert({
+        id,
+        indicator_name: indicatorName,
+        file_name: safeFileName,
+        description,
+        file_path: uploadPath,
+        size: file.size,
+        mime_type: mimeType,
+        created_at: now,
+        updated_at: now,
+      })
+      .select('*')
+      .maybeSingle();
 
-    const item: IndicatorItem = {
-      id,
-      indicatorName,
-      fileName: safeFileName,
-      description,
-      filePath: uploadPath,
-      fileUrl: publicData.publicUrl,
-      size: file.size,
-      mimeType,
-      createdAt: new Date().toISOString(),
-    };
-
-    const metaPath = `${META_PREFIX}/${id}.json`;
-    const { error: metaError } = await supabase.storage.from(BUCKET).upload(metaPath, JSON.stringify(item), {
-      upsert: true,
-      contentType: 'application/json',
-    });
-
-    if (metaError) {
+    if (insertError || !data) {
       await supabase.storage.from(BUCKET).remove([uploadPath]);
-      return NextResponse.json({ error: metaError.message || 'រក្សាទុកទិន្នន័យមេតា​មិនបាន' }, { status: 500 });
+      return NextResponse.json(
+        { error: insertError?.message || 'រក្សាទុកទិន្នន័យមិនបាន' },
+        { status: 500 }
+      );
     }
 
-    return NextResponse.json(item, { status: 201 });
+    return NextResponse.json(mapRowToItem(supabase, data as IndicatorRow), { status: 201 });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'អាប់ឡូដ Indicator មិនបាន';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// PUT /api/admin/indicator — update indicator metadata (admin only)
 export async function PUT(request: NextRequest) {
   try {
     const admin = await requireAdmin();
@@ -183,36 +181,39 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'ត្រូវការឈ្មោះ Indicator' }, { status: 400 });
     }
 
-    const items = await listIndicators();
-    const current = items.find((item) => item.id === id);
-    if (!current) {
+    const supabase = getSupabaseAdminClient();
+    const { data: current, error: fetchError } = await supabase
+      .from('trading_indicators')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (fetchError || !current) {
       return NextResponse.json({ error: 'រកមិនឃើញទិន្នន័យ' }, { status: 404 });
     }
 
-    const updated: IndicatorItem = {
-      ...current,
-      indicatorName,
-      description: description ?? current.description ?? '',
-    };
+    const { data, error } = await supabase
+      .from('trading_indicators')
+      .update({
+        indicator_name: indicatorName,
+        description: description ?? (current as IndicatorRow).description ?? '',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select('*')
+      .maybeSingle();
 
-    const supabase = getSupabaseAdminClient();
-    const metaPath = `${META_PREFIX}/${id}.json`;
-    const { error } = await supabase.storage
-      .from(BUCKET)
-      .upload(metaPath, JSON.stringify(updated), { upsert: true, contentType: 'application/json' });
-
-    if (error) {
-      return NextResponse.json({ error: error.message || 'កែប្រែទិន្នន័យមិនបាន' }, { status: 500 });
+    if (error || !data) {
+      return NextResponse.json({ error: error?.message || 'កែប្រែទិន្នន័យមិនបាន' }, { status: 500 });
     }
 
-    return NextResponse.json(updated, { status: 200 });
+    return NextResponse.json(mapRowToItem(supabase, data as IndicatorRow), { status: 200 });
   } catch (e) {
     const message = e instanceof Error ? e.message : 'កែប្រែ Indicator មិនបាន';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
-// DELETE /api/admin/indicator?id=<id> — delete indicator file + metadata (admin only)
 export async function DELETE(request: NextRequest) {
   try {
     const admin = await requireAdmin();
@@ -225,20 +226,27 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'ត្រូវការ id' }, { status: 400 });
     }
 
-    const items = await listIndicators();
-    const target = items.find((item) => item.id === id);
-    if (!target) {
+    const supabase = getSupabaseAdminClient();
+    const { data: target, error: fetchError } = await supabase
+      .from('trading_indicators')
+      .select('file_path')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (fetchError || !target) {
       return NextResponse.json({ error: 'រកមិនឃើញទិន្នន័យ' }, { status: 404 });
     }
 
-    const supabase = getSupabaseAdminClient();
-    const { error } = await supabase
-      .storage
-      .from(BUCKET)
-      .remove([target.filePath, `${META_PREFIX}/${id}.json`]);
+    const filePath = (target as { file_path: string }).file_path;
 
-    if (error) {
-      return NextResponse.json({ error: error.message || 'លុបទិន្នន័យមិនបាន' }, { status: 500 });
+    const { error: deleteError } = await supabase.from('trading_indicators').delete().eq('id', id);
+    if (deleteError) {
+      return NextResponse.json({ error: deleteError.message || 'លុបទិន្នន័យមិនបាន' }, { status: 500 });
+    }
+
+    const { error: storageError } = await supabase.storage.from(BUCKET).remove([filePath]);
+    if (storageError) {
+      console.error('trading_indicators storage cleanup failed after DB delete:', storageError.message);
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

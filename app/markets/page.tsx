@@ -1,6 +1,3 @@
-// CamboEA - Markets: TradingView + pair search
-
-import React from 'react';
 import { MarketsPageClient } from '@/components/features/markets/MarketsPageClient';
 
 export const metadata = {
@@ -14,16 +11,14 @@ export default async function MarketsPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const initialView =
     params.view === 'overview'
-        ? 'overview'
-        : params.view === 'depth'
-          ? 'depth'
-          : params.view === 'calendar'
-            ? 'calendar'
-            : params.view === 'volatility'
-              ? 'volatility'
+      ? 'overview'
+      : params.view === 'depth'
+        ? 'depth'
+        : params.view === 'volatility'
+          ? 'volatility'
           : params.view === 'retailer'
             ? 'retailer'
-              : 'overview';
+            : 'overview';
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <section className="bg-linear-to-br from-slate-800 via-slate-900 to-slate-800 text-white py-10 sm:py-12">

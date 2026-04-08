@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { NewsArticle, NewsCategory } from '@/types';
 import { getSupabaseAdminClient } from '@/lib/supabase-admin';
+import { sendNewsToFacebook } from '@/lib/facebook';
+import { sendNewsToTelegram } from '@/lib/telegram';
 import { requireAdmin } from '@/lib/admin-auth';
 import { mapNewsRowToArticle, NEWS_SELECT_COLUMNS, type NewsRow } from '@/lib/news/news-row';
 
@@ -18,6 +20,7 @@ type NewsUpdateBody = {
   readTime?: unknown;
   image?: unknown;
   featured?: unknown;
+  isPublished?: unknown;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -115,10 +118,17 @@ export async function PUT(
     const excerpt = body.excerpt !== undefined ? (parseOptionalString(body.excerpt) ?? '') : existing.excerpt;
     const content = body.content !== undefined ? (parseOptionalString(body.content) ?? '') : existing.content;
     const impact = body.impact !== undefined ? (parseOptionalString(body.impact) ?? '') : existing.impact;
-    const category = (body.category === 'forex' ? 'forex' : 'crypto') as NewsCategory;
+    const prevPublished = existing.is_published !== false;
+
+    const category =
+      body.category !== undefined
+        ? ((body.category === 'forex' ? 'forex' : 'crypto') as NewsCategory)
+        : existing.category;
     const tags = Array.isArray(body.tags)
       ? body.tags.filter((v): v is string => typeof v === 'string').map((v) => v.trim()).filter(Boolean)
-      : existing.tags;
+      : Array.isArray(existing.tags)
+        ? existing.tags
+        : [];
     const authorName = body.authorName !== undefined
       ? (parseOptionalString(body.authorName) ?? '')
       : (isRecord(body.author) ? (parseOptionalString(body.author.name) ?? existing.author_name) : existing.author_name);
@@ -136,6 +146,8 @@ export async function PUT(
     const readTime = body.readTime !== undefined ? (parseOptionalString(body.readTime) ?? '') : existing.read_time;
     const image = body.image !== undefined ? (parseOptionalString(body.image) ?? null) : existing.image;
     const featured = body.featured !== undefined ? Boolean(body.featured) : existing.featured;
+    const isPublished =
+      body.isPublished !== undefined ? Boolean(body.isPublished) : prevPublished;
     let slug = body.slug !== undefined ? (parseOptionalString(body.slug) ?? '') : existing.slug;
     if (!slug) slug = slugify(title) || existing.slug;
 
@@ -162,6 +174,7 @@ export async function PUT(
         image,
         featured,
         docx_path: null,
+        is_published: isPublished,
       })
       .eq('id', id)
       .select('*')
@@ -173,6 +186,31 @@ export async function PUT(
       }
       console.error(error);
       return NextResponse.json({ error: 'Failed to update article' }, { status: 500 });
+    }
+
+    if (isPublished && !prevPublished && data) {
+      const row = data as {
+        title: string;
+        excerpt: string;
+        slug: string;
+        image: string | null;
+        impact: string | null;
+      };
+      sendNewsToTelegram({
+        title: row.title,
+        excerpt: row.excerpt,
+        slug: row.slug,
+        image: row.image ?? undefined,
+        impact: row.impact ?? undefined,
+      }).catch((err) => console.error('Telegram notification failed:', err));
+
+      sendNewsToFacebook({
+        title: row.title,
+        excerpt: row.excerpt,
+        slug: row.slug,
+        image: row.image ?? undefined,
+        impact: row.impact ?? undefined,
+      }).catch((err) => console.error('Facebook post failed:', err));
     }
 
     return NextResponse.json(data);

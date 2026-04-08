@@ -14,6 +14,7 @@ const NAV_LINKS = [
   { href: '/ea-trading-bot', label: 'Tools' },
 ];
 const MORE_LINKS = [
+  { href: '/liquidity', label: 'ផែនទីសេរីភាព (XAUT)' },
   { href: '/lesson', label: 'មេរៀនអំពី Forex' },
   { href: '/contact', label: 'ទំនាក់ទំនង' },
   { href: '/about', label: 'អំពីយើង' },
