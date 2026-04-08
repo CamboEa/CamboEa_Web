@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 const ADMIN_NAV = [
   { href: '/admin', label: 'ផ្ទាំងគ្រប់គ្រង' },
   { href: '/admin/news', label: 'ព័ត៌មាន' },
+  { href: '/admin/news/ingest', label: 'AI Scraper' },
   { href: '/admin/users', label: 'អ្នកប្រើ' },
   { href: '/admin/lesson', label: 'Lesson Management' },
   { href: '/admin/ea-bot', label: 'EA Bot Management' },

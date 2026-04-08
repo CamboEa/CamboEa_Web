@@ -124,8 +124,9 @@ export async function GET(request: NextRequest) {
 function slugify(text: string): string {
   return text
     .toLowerCase()
+    .replace(/_/g, '-')
     .replace(/\s+/g, '-')
-    .replace(/[^\w\u1780-\u17FF\-]/g, '')
+    .replace(/[^a-z0-9-]/g, '')
     .replace(/-+/g, '-')
     .replace(/^-|-$/g, '');
 }

@@ -20,7 +20,7 @@ const DEFAULT_SOURCES: IngestSourceConfig[] = [
   {
     id: 'investing-forex-rss',
     label: 'Investing.com Forex News',
-    feedUrl: 'https://www.investing.com/rss/news_forex.rss',
+    feedUrl: 'https://www.investing.com/rss/news_25.rss',
     allowedArticleHosts: ['investing.com'],
     category: 'forex',
   },
