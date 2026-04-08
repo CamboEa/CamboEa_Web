@@ -21,6 +21,9 @@ type RssItem = {
   link?: string;
   pubDate?: string;
   isoDate?: string;
+  content?: string;
+  contentSnippet?: string;
+  summary?: string;
   enclosure?: { url?: string; type?: string };
 };
 
@@ -90,6 +93,35 @@ function sortItemsNewestFirst(items: RssItem[]): RssItem[] {
     const tb = b.isoDate ? Date.parse(b.isoDate) : b.pubDate ? Date.parse(b.pubDate) : 0;
     return tb - ta;
   });
+}
+
+function normalizePlainText(input: string): string {
+  return input
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function extractRssFallbackText(item: RssItem): string {
+  const parts = [
+    typeof item.title === 'string' ? item.title : '',
+    typeof item.contentSnippet === 'string' ? item.contentSnippet : '',
+    typeof item.summary === 'string' ? item.summary : '',
+    typeof item.content === 'string' ? item.content : '',
+  ]
+    .map((s) => normalizePlainText(s))
+    .filter(Boolean);
+
+  const unique = Array.from(new Set(parts));
+  return unique.join('\n\n');
 }
 
 async function ensureUniqueSlug(supabase: ReturnType<typeof getSupabaseAdminClient>, base: string) {
@@ -222,15 +254,32 @@ export async function runNewsIngest(
     emitStep('article_pick', 'បានជ្រើសរឿងថ្មី', link);
 
     emitStep('article_fetch', 'កំពុងទាញ HTML ពីគេហទំព័រប្រភព…', link);
-    const extracted = await extractArticleFromUrl(link);
-    const snippet = extracted.text.length > 200 ? `${extracted.text.slice(0, 200)}…` : extracted.text;
-    emitStep(
-      'extract',
-      `បានស្រង់អត្ថបទ (Readability) — ${extracted.text.length.toLocaleString()} តួអក្សរ`,
-      snippet
-    );
+    let extractedTitle = '';
+    let extractedText = '';
+    try {
+      const extracted = await extractArticleFromUrl(link);
+      extractedTitle = extracted.title;
+      extractedText = extracted.text;
+      const snippet = extracted.text.length > 200 ? `${extracted.text.slice(0, 200)}…` : extracted.text;
+      emitStep(
+        'extract',
+        `បានស្រង់អត្ថបទ (Readability) — ${extracted.text.length.toLocaleString()} តួអក្សរ`,
+        snippet
+      );
+    } catch (err) {
+      const fallbackText = extractRssFallbackText(item);
+      if (fallbackText.length < 220) {
+        throw err;
+      }
+      extractedText = fallbackText;
+      emitStep(
+        'extract',
+        'មិនអាចទាញ HTML បាន (ប្រហែល bot-block/403) — ប្រើ RSS snippet ជំនួស',
+        err instanceof Error ? err.message : 'HTML extraction failed'
+      );
+    }
 
-    const sourceTitle = (item.title?.trim() || extracted.title || 'News').slice(0, 500);
+    const sourceTitle = (item.title?.trim() || extractedTitle || 'News').slice(0, 500);
 
     emitStep(
       'sea_lion',
@@ -242,7 +291,7 @@ export async function runNewsIngest(
     const khmer = streamAi
       ? await rewriteArticleToKhmerJsonStreaming({
           sourceTitle,
-          sourceText: extracted.text,
+          sourceText: extractedText,
           sourceUrl: link,
           onDelta: (part) => {
             if (part.reasoning) {
@@ -255,7 +304,7 @@ export async function runNewsIngest(
         })
       : await rewriteArticleToKhmerJson({
           sourceTitle,
-          sourceText: extracted.text,
+          sourceText: extractedText,
           sourceUrl: link,
         });
 
